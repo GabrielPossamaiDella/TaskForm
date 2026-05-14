@@ -1,90 +1,131 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
+import { Ionicons, Feather } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
 
 export default function Home({ navigation }) {
   const { listaOS } = useApp();
-  
+
   const renderItem = ({ item }) => (
+    // Transformado em TouchableOpacity para abrir os detalhes
     <TouchableOpacity 
       style={styles.cardOS}
-      // AQUI: Passamos a OS selecionada para a tela de Detalhes
       onPress={() => navigation.navigate('DetalhesOS', { osSelecionada: item })}
     >
-      <View style={styles.cardHeader}>
-        <Text style={styles.clienteOS}>{item.cliente?.nome || "Cliente avulso"}</Text>
-        <Text style={styles.horaOS}>{item.data}</Text>
+      <View style={styles.cardHeaderRow}>
+        <Text style={styles.osNumber}>{item.os_number || '#XXXXXX'}</Text>
+        <View style={styles.tagConcluido}>
+          <Text style={styles.textoConcluido}>{item.status}</Text>
+        </View>
       </View>
-      <Text style={styles.maquinaInfo}>{item.maquina}</Text>
-      <View style={[
-        styles.tagStatus, 
-        item.status === 'Concluída' ? styles.tagVerde : styles.tagAmarela
-      ]}>
-        <Text style={styles.textoStatus}>{item.status}</Text>
+      
+      <View style={styles.osInfoRow}>
+        <Ionicons name="person" size={16} color={CORES.secundaria} style={styles.iconInfo} />
+        <Text style={styles.osCliente}>{item.cliente?.nome || "Cliente avulso"}</Text>
+      </View>
+
+      <View style={styles.osInfoRow}>
+        <Feather name="settings" size={16} color={CORES.placeholder} style={styles.iconInfo} />
+        <Text style={styles.osMaquina}>{item.maquina}</Text>
+      </View>
+
+      <View style={styles.divisor} />
+
+      <View style={styles.cardFooter}>
+        <View style={styles.dateTag}>
+          <Text style={styles.textoDate}>{item.data}</Text>
+        </View>
+        <View style={styles.actionIconsRow}>
+          <Feather name="cloud-drizzle" size={18} color={CORES.placeholder} style={styles.actionIcon} />
+        </View>
       </View>
     </TouchableOpacity>
   );
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.subtitulo}>Bem-vindo ao TaskForm</Text>
-        <Text style={styles.titulo}>Ordens de Serviço</Text>
+  const HeaderBanner = () => (
+    <View style={styles.headerBanner}>
+      <View style={styles.headerLogoRow}>
+        <View style={styles.shieldBadge}>
+          <Ionicons name="shield-checkmark" size={20} color={CORES.secundaria} />
+        </View>
+        <View style={styles.titleContainer}>
+          <Text style={styles.logoTextMain}>TASKFORM | TECFLEX</Text>
+          <Text style={styles.logoTextSub}>GESTÃO DE ASSISTÊNCIA</Text>
+        </View>
+        <TouchableOpacity onPress={() => navigation.navigate('Perfil')}>
+          <Ionicons name="log-out-outline" size={24} color="#fff" />
+        </TouchableOpacity>
       </View>
-
-      <FlatList
-        data={listaOS}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 100 }}
-        ListEmptyComponent={
-          <View style={styles.vazioContainer}>
-            <Text style={styles.textoVazio}>Nenhum atendimento realizado hoje.</Text>
-          </View>
-        }
-      />
-
-      <TouchableOpacity 
-        style={styles.botaoFlutuante} 
-        onPress={() => navigation.navigate('NovaOSCliente')}
-      >
-        <Text style={styles.textoBotaoFlutuante}>+ NOVA OS</Text>
-      </TouchableOpacity>
     </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <HeaderBanner />
+      
+      <View style={styles.content}>
+        <View style={styles.topCardsRow}>
+          <View style={[styles.topCard, styles.ordersCard]}>
+            <Text style={styles.labelTopCard}>TOTAL DE ORDENS</Text>
+            <Text style={styles.valorTopCard}>{listaOS.length}</Text>
+          </View>
+          <TouchableOpacity style={[styles.topCard, styles.refreshCard]}>
+            <Feather name="refresh-ccw" size={24} color="#fff" />
+            <Text style={styles.textoRefreshCard}>ATUALIZAR</Text>
+          </TouchableOpacity>
+        </View>
+
+        <FlatList
+          data={listaOS}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingBottom: 20 }} // Reduzido pois não há mais botão flutuante
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.vazioContainer}>
+              <Text style={styles.textoVazio}>Nenhuma OS cadastrada ainda.</Text>
+            </View>
+          }
+        />
+        {/* Botão flutuante removido daqui */}
+      </View>
+    </SafeAreaView>
   );
 }
 
+// MANTENHA O MESMO StyleSheet DA VERSÃO ANTERIOR AQUI
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: CORES.fundo, padding: 20 },
-  header: { marginBottom: 25, marginTop: 10 },
-  subtitulo: { fontSize: 14, color: CORES.textoSecundario },
-  titulo: { fontSize: 26, fontWeight: 'bold', color: CORES.textoPrincipal },
-  cardOS: { 
-    backgroundColor: CORES.branco, 
-    borderRadius: 12, 
-    padding: 18, 
-    marginBottom: 15,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  clienteOS: { fontSize: 18, fontWeight: 'bold', color: CORES.textoPrincipal },
-  horaOS: { fontSize: 12, color: CORES.placeholder },
-  maquinaInfo: { fontSize: 14, color: CORES.textoSecundario, marginTop: 5 },
-  tagStatus: { paddingVertical: 4, paddingHorizontal: 12, borderRadius: 20, marginTop: 10, alignSelf: 'flex-start' },
-  tagVerde: { backgroundColor: '#E8F5E9' },
-  tagAmarela: { backgroundColor: '#FFFDE7' },
-  textoStatus: { fontSize: 11, fontWeight: 'bold', color: CORES.textoSecundario, textTransform: 'uppercase' },
+  safe: { flex: 1, backgroundColor: CORES.fundo },
+  content: { flex: 1, padding: 20 },
+  headerBanner: { backgroundColor: CORES.primaria, paddingTop: 40, paddingBottom: 30, paddingHorizontal: 20, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 },
+  headerLogoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  shieldBadge: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' },
+  titleContainer: { flex: 1, marginLeft: 15 },
+  logoTextMain: { fontSize: 18, fontWeight: 'bold', color: CORES.branco, letterSpacing: 1 },
+  logoTextSub: { fontSize: 11, color: CORES.placeholder, marginTop: -3, textTransform: 'uppercase', letterSpacing: 1 },
+  topCardsRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, marginBottom: 20 },
+  topCard: { width: '48%', height: 100, borderRadius: 15, justifyContent: 'center', alignItems: 'center', elevation: 3 },
+  ordersCard: { backgroundColor: CORES.branco },
+  labelTopCard: { fontSize: 10, color: CORES.placeholder, fontWeight: 'bold' },
+  valorTopCard: { fontSize: 36, fontWeight: 'bold', color: CORES.textoPrincipal, marginTop: 5 },
+  refreshCard: { backgroundColor: CORES.secundaria },
+  textoRefreshCard: { color: CORES.branco, fontSize: 12, fontWeight: 'bold', marginTop: 10 },
+  cardOS: { backgroundColor: CORES.branco, borderRadius: 15, padding: 18, marginBottom: 15, elevation: 2 },
+  cardHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  osNumber: { fontSize: 12, color: CORES.placeholder },
+  tagConcluido: { backgroundColor: CORES.sucesso, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 15 },
+  textoConcluido: { color: CORES.textoSucesso, fontSize: 10, fontWeight: 'bold' },
+  osInfoRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 5 },
+  iconInfo: { marginRight: 10 },
+  osCliente: { fontSize: 18, fontWeight: 'bold', color: CORES.textoPrincipal },
+  osMaquina: { fontSize: 14, color: CORES.textoSecundario },
+  divisor: { height: 1, backgroundColor: CORES.cinzaLinha, marginVertical: 15 },
+  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  dateTag: { backgroundColor: CORES.lightPurple, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
+  textoDate: { color: CORES.secundaria, fontSize: 11, fontWeight: 'bold' },
+  actionIconsRow: { flexDirection: 'row' },
+  actionIcon: { marginLeft: 20 },
   vazioContainer: { alignItems: 'center', marginTop: 100 },
-  textoVazio: { color: CORES.textoSecundario, fontWeight: 'bold' },
-  botaoFlutuante: { 
-    position: 'absolute', bottom: 30, right: 20, 
-    backgroundColor: CORES.sucesso, paddingVertical: 15, paddingHorizontal: 25, 
-    borderRadius: 30, elevation: 5,
-  },
-  textoBotaoFlutuante: { color: CORES.branco, fontWeight: 'bold', fontSize: 16 }
+  textoVazio: { color: CORES.textoSecundario, fontWeight: 'bold' }
 });

@@ -22,9 +22,9 @@ export default function NovaOSEquipamento({ navigation }) {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.progressoContainer}>
-        <Text style={styles.passoInativo}>✅ Cliente</Text>
+        <Text style={styles.passoInativo}>Cliente</Text>
         <Text style={styles.passoAtivo}>Equipamento</Text>
-        <Text style={styles.passoInativo}>👉 Serviço</Text>
+        <Text style={styles.passoInativo}>Serviço</Text>
       </View>
 
       <Text style={styles.label}>Qual a máquina?</Text>

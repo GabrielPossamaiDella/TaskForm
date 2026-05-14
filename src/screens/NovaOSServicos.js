@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, FlatList } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useApp } from '../context/AppContext';
 import { CORES, ESTILOS_COMUNS } from '../styles/temas';
 
@@ -17,11 +17,15 @@ export default function NovaOSServicos({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView>
+    // KeyboardAvoidingView empurra o conteúdo para cima quando o teclado abre
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === "ios" ? "padding" : "height"} 
+      style={{ flex: 1 }}
+    >
+      <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.label}>Serviço Executado</Text>
         <TextInput 
-          style={[ESTILOS_COMUNS.input, { height: 80 }]} 
+          style={[ESTILOS_COMUNS.inputModerno, { height: 80, textAlignVertical: 'top' }]} 
           value={osAtual.servico} 
           onChangeText={(txt) => atualizarOS({ servico: txt })} 
           multiline 
@@ -29,7 +33,7 @@ export default function NovaOSServicos({ navigation }) {
 
         <Text style={styles.label}>Valor da Mão de Obra (R$)</Text>
         <TextInput 
-          style={ESTILOS_COMUNS.input} 
+          style={ESTILOS_COMUNS.inputModerno} 
           value={String(osAtual.valorMaoDeObra)} 
           onChangeText={(txt) => atualizarOS({ valorMaoDeObra: txt })} 
           keyboardType="numeric" 
@@ -40,13 +44,13 @@ export default function NovaOSServicos({ navigation }) {
         <Text style={styles.label}>Adicionar Peças / Materiais</Text>
         <View style={styles.row}>
           <TextInput 
-            style={[ESTILOS_COMUNS.input, { flex: 2 }]} 
+            style={[ESTILOS_COMUNS.inputModerno, { flex: 2, marginBottom: 0 }]} 
             placeholder="Peça" 
             value={nomePeca} 
             onChangeText={setNomePeca} 
           />
           <TextInput 
-            style={[ESTILOS_COMUNS.input, { flex: 1, marginLeft: 10 }]} 
+            style={[ESTILOS_COMUNS.inputModerno, { flex: 1, marginLeft: 10, marginBottom: 0 }]} 
             placeholder="R$" 
             value={valorPeca} 
             onChangeText={setValorPeca} 
@@ -58,34 +62,39 @@ export default function NovaOSServicos({ navigation }) {
           <Text style={styles.txtAdicionar}>+ ADICIONAR NA LISTA</Text>
         </TouchableOpacity>
 
-        {/* Lista de peças adicionadas */}
         {osAtual.pecas.map((item) => (
           <View key={item.id} style={styles.itemPeca}>
             <Text style={styles.nomePeca}>{item.nome}</Text>
             <Text style={styles.valorPeca}>R$ {parseFloat(item.valor).toFixed(2)}</Text>
           </View>
         ))}
+
       </ScrollView>
 
+      {/* Footer Fixo */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.botaoProximo} onPress={() => navigation.navigate('NovaOSResumo')}>
-          <Text style={ESTILOS_COMUNS.textoBotao}>IR PARA RESUMO</Text>
+        <TouchableOpacity 
+          style={[ESTILOS_COMUNS.botaoPadrão, styles.botaoProximo]} 
+          onPress={() => navigation.navigate('NovaOSResumo')}
+        >
+          {/* A cor branca do texto agora aparece pois o fundo é primaria */}
+          <Text style={{ color: CORES.branco, fontWeight: 'bold' }}>IR PARA RESUMO</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: CORES.fundo, padding: 20 },
-  label: { fontSize: 14, fontWeight: 'bold', color: CORES.textoSecundario, marginTop: 15 },
-  row: { flexDirection: 'row' },
+  container: { padding: 20, flexGrow: 1, backgroundColor: CORES.fundo },
+  label: { fontSize: 14, fontWeight: 'bold', color: CORES.textoSecundario, marginTop: 15, marginBottom: 5 },
+  row: { flexDirection: 'row', alignItems: 'center' },
   btnAdicionar: { backgroundColor: CORES.secundaria, padding: 12, borderRadius: 8, marginTop: 10, alignItems: 'center' },
   txtAdicionar: { color: '#fff', fontWeight: 'bold' },
   itemPeca: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#fff', padding: 12, borderRadius: 8, marginTop: 8, borderWidth: 1, borderColor: '#eee' },
   nomePeca: { color: CORES.textoPrincipal },
   valorPeca: { fontWeight: 'bold', color: CORES.sucesso },
   divisor: { height: 1, backgroundColor: '#ddd', marginVertical: 20 },
-  footer: { paddingVertical: 10, borderTopWidth: 1, borderColor: '#ddd' },
-  botaoProximo: { backgroundColor: CORES.primaria, padding: 15, borderRadius: 10, alignItems: 'center' }
+  footer: { padding: 20, backgroundColor: CORES.branco, borderTopWidth: 1, borderColor: '#eee' },
+  botaoProximo: { backgroundColor: CORES.primaria, padding: 15, borderRadius: 10, alignItems: 'center' } // Corrigido a cor de fundo
 });

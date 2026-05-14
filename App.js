@@ -1,8 +1,10 @@
 import React from 'react';
+import { TouchableOpacity, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 
-// Importando as telas
 import Login from './src/screens/Login';
 import Home from './src/screens/Home';
 import Perfil from './src/screens/Perfil';
@@ -13,11 +15,49 @@ import NovaOSServicos from './src/screens/NovaOSServicos';
 import NovaOSResumo from './src/screens/NovaOSResumo';
 import DetalhesOS from './src/screens/DetalhesOS';
 
-// Importando o Tema e o Provedor de Dados
 import { CORES } from './src/styles/temas';
 import { AppProvider } from './src/context/AppContext';
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
+function HomeTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: CORES.primaria,
+          borderTopWidth: 0,
+          height: Platform.OS === 'ios' ? 85 : 70,
+          paddingBottom: Platform.OS === 'ios' ? 25 : 12,
+          paddingTop: 10,
+        },
+        tabBarActiveTintColor: CORES.sucesso,
+        tabBarInactiveTintColor: CORES.placeholder,
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === 'Painel') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Nova OS') {
+            iconName = focused ? 'add-circle' : 'add-circle-outline';
+            size = 32;
+            color = focused ? CORES.sucesso : CORES.branco;
+          } else if (route.name === 'Perfil') {
+            iconName = focused ? 'person' : 'person-outline';
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen name="Painel" component={Home} />
+      <Tab.Screen name="Nova OS" component={NovaOSCliente} />
+      <Tab.Screen name="Perfil" component={Perfil} />
+    </Tab.Navigator>
+  );
+}
 
 export default function App() {
   return (
@@ -25,20 +65,14 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator 
           initialRouteName="Login"
-          // --- ESTA É A ALTERAÇÃO NECESSÁRIA PARA O VISUAL DO FIGMA ---
           screenOptions={{
-            headerStyle: {
-              backgroundColor: CORES.primaria, // Azul Escuro Profissional
-            },
-            headerTintColor: CORES.branco, // Texto e Ícones em Branco
-            headerTitleStyle: {
-              fontWeight: 'bold',
-            },
+            headerStyle: { backgroundColor: CORES.primaria },
+            headerTintColor: CORES.branco,
+            headerTitleStyle: { fontWeight: 'bold' },
             headerTitleAlign: 'center',
-            contentStyle: { backgroundColor: CORES.fundo } // Fundo padrão cinza claro
+            contentStyle: { backgroundColor: CORES.fundo }
           }}
         >
-          
           <Stack.Screen 
             name="Login" 
             component={Login} 
@@ -47,53 +81,73 @@ export default function App() {
           
           <Stack.Screen 
             name="Home" 
-            component={Home} 
-            options={{ 
-              title: 'TECFLEX GESTÃO', 
-              headerBackVisible: false // Impede voltar para o Login pelo gesto
-            }} 
-          />
-          
-          <Stack.Screen 
-            name="Perfil" 
-            component={Perfil} 
-            options={{ title: 'Meu Perfil' }} 
+            component={HomeTabs} 
+            options={{ headerShown: false }}
           />
 
           <Stack.Screen 
             name="NovoCliente" 
             component={NovoCliente} 
-            options={{ title: 'Cadastrar Cliente' }} 
-          />
-
-          <Stack.Screen 
-            name="NovaOSCliente" 
-            component={NovaOSCliente} 
-            options={{ title: 'Criação de Atendimento' }} 
+            options={({ navigation }) => ({ 
+              title: 'CADASTRAR CLIENTE',
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.navigate('Home', { screen: 'Painel' })} style={{ marginLeft: 5 }}>
+                  <Ionicons name="home-outline" size={24} color={CORES.branco} />
+                </TouchableOpacity>
+              )
+            })} 
           />
 
           <Stack.Screen 
             name="NovaOSEquipamento" 
             component={NovaOSEquipamento} 
-            options={{ title: 'Criação de Atendimento' }} 
+            options={({ navigation }) => ({ 
+              title: 'EQUIPAMENTO',
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.navigate('Home', { screen: 'Painel' })} style={{ marginLeft: 5 }}>
+                  <Ionicons name="home-outline" size={24} color={CORES.branco} />
+                </TouchableOpacity>
+              )
+            })} 
           />
 
           <Stack.Screen 
             name="NovaOSServicos" 
             component={NovaOSServicos} 
-            options={{ title: 'Criação de Atendimento' }} 
+            options={({ navigation }) => ({ 
+              title: 'SERVIÇOS',
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.navigate('Home', { screen: 'Painel' })} style={{ marginLeft: 5 }}>
+                  <Ionicons name="home-outline" size={24} color={CORES.branco} />
+                </TouchableOpacity>
+              )
+            })} 
           />
 
           <Stack.Screen 
             name="NovaOSResumo" 
             component={NovaOSResumo} 
-            options={{ title: 'Criação de Atendimento' }} 
+            options={({ navigation }) => ({ 
+              title: 'RESUMO FINAL',
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.navigate('Home', { screen: 'Painel' })} style={{ marginLeft: 5 }}>
+                  <Ionicons name="home-outline" size={24} color={CORES.branco} />
+                </TouchableOpacity>
+              )
+            })} 
           />
 
           <Stack.Screen 
             name="DetalhesOS" 
             component={DetalhesOS} 
-            options={{ title: 'Ajustes da OS' }} 
+            options={({ navigation }) => ({ 
+              title: 'DETALHES DA OS',
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => navigation.navigate('Home', { screen: 'Painel' })} style={{ marginLeft: 5 }}>
+                  <Ionicons name="home-outline" size={24} color={CORES.branco} />
+                </TouchableOpacity>
+              )
+            })} 
           />
 
         </Stack.Navigator>

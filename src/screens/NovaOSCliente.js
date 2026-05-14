@@ -28,8 +28,8 @@ export default function NovaOSCliente({ navigation }) {
     <View style={styles.container}>
       <View style={styles.progressoContainer}>
         <Text style={styles.passoAtivo}>Cliente</Text>
-        <Text style={styles.passoInativo}>👉 Equipamento</Text>
-        <Text style={styles.passoInativo}>👉 Serviço</Text>
+        <Text style={styles.passoInativo}>Equipamento</Text>
+        <Text style={styles.passoInativo}>Serviço</Text>
       </View>
 
       <Text style={styles.label}>Buscar Cliente Existente:</Text>
@@ -87,7 +87,7 @@ export default function NovaOSCliente({ navigation }) {
           style={[styles.botaoFooter, styles.botaoProximo]} 
           onPress={handleProximo}
         >
-          <Text style={ESTILOS_COMUNS.textoBotao}>PRÓXIMO ✨</Text>
+          <Text style={ESTILOS_COMUNS.textoBotao}>PRÓXIMO</Text>
         </TouchableOpacity>
       </View>
     </View>

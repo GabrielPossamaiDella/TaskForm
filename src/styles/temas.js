@@ -1,16 +1,25 @@
 // src/styles/temas.js
 
 export const CORES = {
-  primaria: '#1A1A2E', // Azul Escuro do Figma
-  secundaria: '#3B5998', // Azul de Destaque
-  sucesso: '#00A859',   // Verde Tecflex
-  fundo: '#F5F5F7',     // Cinza bem claro para o fundo
+  primaria: '#1A237E',
+  secundaria: '#7E57C2', 
+  lavandaClaro: '#EDE7F6', 
+  sucessoBg: '#E8F5E9',   
+  sucessoTexto: '#2E7D32', 
+  fundo: '#F5F5F7',     
+  card: '#FFFFFF',
   branco: '#FFFFFF',
-  preto: '#000000',
-  cinzaLinha: '#EEEEEE',
-  textoPrincipal: '#333333',
-  textoSecundario: '#666666',
-  placeholder: '#AAAAAA',
+  textoPrincipal: '#212121',
+  textoSecundario: '#9E9E9E',
+  placeholder: '#9E9E9E',
+  divisor: '#E0E0E0',
+};
+
+export const RAIO = {
+  card: 15,
+  botao: 10,
+  input: 12,
+  tag: 20,
 };
 
 export const ESTILOS_COMUNS = {
@@ -18,7 +27,7 @@ export const ESTILOS_COMUNS = {
     backgroundColor: CORES.branco,
     borderWidth: 1,
     borderColor: '#E0E0E0',
-    borderRadius: 10, // Arredondado igual Figma
+    borderRadius: 10, 
     padding: 15,
     fontSize: 16,
     color: CORES.textoPrincipal,
@@ -28,7 +37,6 @@ export const ESTILOS_COMUNS = {
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    // Sombra leve no Android
     elevation: 1,
   },
   botaoPadrão: {

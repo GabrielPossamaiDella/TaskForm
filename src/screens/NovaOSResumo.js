@@ -1,64 +1,104 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Alert } from 'react-native';
 import { useApp } from '../context/AppContext';
-import { CORES, ESTILOS_COMUNS } from '../styles/temas';
+import { CORES } from '../styles/temas';
 
 export default function NovaOSResumo({ navigation }) {
   const { osAtual, finalizarOS } = useApp();
 
-  // Cálculo da soma das peças
-  const totalPecas = osAtual.pecas.reduce((acc, p) => acc + parseFloat(p.valor || 0), 0);
-  const totalGeral = parseFloat(osAtual.valorMaoDeObra || 0) + totalPecas;
+  const calcularTotalPecas = () => {
+    return osAtual.pecas.reduce((acc, peca) => acc + parseFloat(peca.valor || 0), 0);
+  };
 
-  const handleFinalizar = () => {
-    finalizarOS();
-    Alert.alert("Sucesso", "Ordem de Serviço finalizada!", [{ text: "OK", onPress: () => navigation.navigate('Home') }]);
+  const totalPecas = calcularTotalPecas();
+  const maoDeObra = parseFloat(osAtual.valorMaoDeObra || 0);
+  const totalGeral = maoDeObra + totalPecas;
+
+  const handleFinalizar = async () => {
+    try {
+      await finalizarOS();
+      Alert.alert('Sucesso', 'Ordem de Serviço salva com sucesso!');
+      navigation.navigate('Painel'); // Volta para a aba principal
+    } catch (e) {
+      Alert.alert('Erro', 'Não foi possível salvar a OS.');
+    }
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.titulo}>Resumo Financeiro</Text>
+    <SafeAreaView style={styles.safe}>
+      <ScrollView contentContainerStyle={styles.container}>
+        
+        <Text style={styles.titulo}>Resumo Financeiro</Text>
 
-      <View style={styles.card}>
-        <View style={styles.linha}>
-          <Text style={styles.txtLabel}>Mão de Obra:</Text>
-          <Text style={styles.txtValor}>R$ {parseFloat(osAtual.valorMaoDeObra).toFixed(2)}</Text>
+        <View style={styles.cardFinanceiro}>
+          <View style={styles.linhaResumo}>
+            <Text style={styles.textoLinha}>Mão de Obra:</Text>
+            <Text style={styles.valorLinha}>R$ {maoDeObra.toFixed(2)}</Text>
+          </View>
+          
+          <View style={styles.linhaResumo}>
+            <Text style={styles.textoLinha}>Total em Peças ({osAtual.pecas.length}):</Text>
+            <Text style={styles.valorLinha}>R$ {totalPecas.toFixed(2)}</Text>
+          </View>
+
+          <View style={styles.divisorBlue} />
+
+          <View style={styles.linhaTotal}>
+            <Text style={styles.textoTotal}>TOTAL GERAL:</Text>
+            <Text style={styles.valorTotal}>R$ {totalGeral.toFixed(2)}</Text>
+          </View>
         </View>
 
-        <View style={styles.linha}>
-          <Text style={styles.txtLabel}>Total em Peças ({osAtual.pecas.length}):</Text>
-          <Text style={styles.txtValor}>R$ {totalPecas.toFixed(2)}</Text>
-        </View>
+        {osAtual.pecas.length > 0 && (
+          <View style={styles.detalhamento}>
+            <Text style={styles.labelDetalhe}>Detalhamento das Peças:</Text>
+            {osAtual.pecas.map((peca, index) => (
+              <Text key={index} style={styles.textoPeca}>
+                • {peca.nome}: R$ {parseFloat(peca.valor).toFixed(2)}
+              </Text>
+            ))}
+          </View>
+        )}
 
-        <View style={[styles.linha, styles.linhaTotal]}>
-          <Text style={styles.txtTotalLabel}>TOTAL GERAL:</Text>
-          <Text style={styles.txtTotalValor}>R$ {totalGeral.toFixed(2)}</Text>
-        </View>
-      </View>
+        {/* AQUI ESTÁ A CORREÇÃO DO BOTÃO FANTASMA */}
+        <TouchableOpacity style={styles.botaoFinalizarAbsoluto} onPress={handleFinalizar}>
+          <Text style={styles.textoBotaoBranco}>FINALIZAR E SALVAR</Text>
+        </TouchableOpacity>
 
-      <Text style={styles.labelSub}>Detalhamento das Peças:</Text>
-      {osAtual.pecas.map(p => (
-        <Text key={p.id} style={styles.txtDetalhe}>• {p.nome}: R$ {parseFloat(p.valor).toFixed(2)}</Text>
-      ))}
-
-      <TouchableOpacity style={styles.btnFinalizar} onPress={handleFinalizar}>
-        <Text style={ESTILOS_COMUNS.textoBotao}>FINALIZAR E SALVAR</Text>
-      </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: CORES.fundo, padding: 20 },
-  titulo: { fontSize: 22, fontWeight: 'bold', color: CORES.primaria, marginBottom: 20 },
-  card: { backgroundColor: CORES.primaria, padding: 20, borderRadius: 12, elevation: 5 },
-  linha: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  txtLabel: { color: '#fff', opacity: 0.8 },
-  txtValor: { color: '#fff', fontWeight: 'bold' },
-  linhaTotal: { borderTopWidth: 1, borderColor: 'rgba(255,255,255,0.2)', paddingTop: 15, marginTop: 5 },
-  txtTotalLabel: { color: CORES.sucesso, fontWeight: 'bold', fontSize: 18 },
-  txtTotalValor: { color: CORES.sucesso, fontWeight: 'bold', fontSize: 22 },
-  labelSub: { fontSize: 14, fontWeight: 'bold', color: CORES.textoSecundario, marginTop: 25, marginBottom: 10 },
-  txtDetalhe: { fontSize: 14, color: CORES.textoPrincipal, marginBottom: 5 },
-  btnFinalizar: { backgroundColor: CORES.sucesso, padding: 18, borderRadius: 10, marginTop: 40, alignItems: 'center' }
+  safe: { flex: 1, backgroundColor: CORES.fundo },
+  container: { padding: 20, flexGrow: 1 },
+  titulo: { fontSize: 20, fontWeight: 'bold', color: CORES.primaria, marginBottom: 15 },
+  cardFinanceiro: { backgroundColor: CORES.primaria, borderRadius: 12, padding: 20, elevation: 4 },
+  linhaResumo: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
+  textoLinha: { color: 'rgba(255,255,255,0.8)', fontSize: 14 },
+  valorLinha: { color: CORES.branco, fontSize: 14, fontWeight: 'bold' },
+  divisorBlue: { height: 1, backgroundColor: 'rgba(255,255,255,0.2)', marginVertical: 15 },
+  linhaTotal: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  textoTotal: { color: CORES.branco, fontSize: 16, fontWeight: 'bold' },
+  valorTotal: { color: CORES.branco, fontSize: 22, fontWeight: 'bold' },
+  detalhamento: { marginTop: 20 },
+  labelDetalhe: { fontSize: 14, fontWeight: 'bold', color: CORES.textoSecundario, marginBottom: 10 },
+  textoPeca: { fontSize: 14, color: CORES.textoPrincipal, marginBottom: 5 },
+  
+  // Estilo blindado para o botão não sumir
+  botaoFinalizarAbsoluto: {
+    backgroundColor: CORES.secundaria, // Roxo do Figma
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 40,
+    elevation: 3, // Dá uma sombrinha
+  },
+  textoBotaoBranco: {
+    color: '#FFFFFF', // Força o branco puro
+    fontWeight: 'bold',
+    fontSize: 16,
+    letterSpacing: 1
+  }
 });
