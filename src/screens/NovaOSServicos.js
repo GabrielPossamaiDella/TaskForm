@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useApp } from '../context/AppContext';
-import { CORES, ESTILOS_COMUNS } from '../styles/temas';
+import { CORES, ESTILOS_COMUNS, RAIO } from '../styles/temas';
 
 export default function NovaOSServicos({ navigation }) {
   const { osAtual, atualizarOS, adicionarPecaOS } = useApp();
@@ -23,21 +23,25 @@ export default function NovaOSServicos({ navigation }) {
       style={{ flex: 1 }}
     >
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.label}>Serviço Executado</Text>
-        <TextInput 
-          style={[ESTILOS_COMUNS.inputModerno, { height: 80, textAlignVertical: 'top' }]} 
-          value={osAtual.servico} 
-          onChangeText={(txt) => atualizarOS({ servico: txt })} 
-          multiline 
-        />
+        <View style={styles.servicoBox}>
+          <Text style={styles.label}>Serviço Executado</Text>
+          <TextInput 
+            style={[ESTILOS_COMUNS.inputModerno, { height: 80, textAlignVertical: 'top' }]} 
+            value={osAtual.servico} 
+            onChangeText={(txt) => atualizarOS({ servico: txt })} 
+            multiline 
+          />
+        </View>
 
-        <Text style={styles.label}>Valor da Mão de Obra (R$)</Text>
-        <TextInput 
-          style={ESTILOS_COMUNS.inputModerno} 
-          value={String(osAtual.valorMaoDeObra)} 
-          onChangeText={(txt) => atualizarOS({ valorMaoDeObra: txt })} 
-          keyboardType="numeric" 
-        />
+        <View style={styles.valorBox}>
+          <Text style={styles.label}>Valor da Mão de Obra (R$)</Text>
+          <TextInput 
+            style={ESTILOS_COMUNS.inputModerno} 
+            value={String(osAtual.valorMaoDeObra)} 
+            onChangeText={(txt) => atualizarOS({ valorMaoDeObra: txt })} 
+            keyboardType="numeric" 
+          />
+        </View>
 
         <View style={styles.divisor} />
 
@@ -95,6 +99,8 @@ const styles = StyleSheet.create({
   nomePeca: { color: CORES.textoPrincipal },
   valorPeca: { fontWeight: 'bold', color: CORES.sucesso },
   divisor: { height: 1, backgroundColor: '#ddd', marginVertical: 20 },
+  servicoBox: { backgroundColor: CORES.branco, borderWidth: 1, borderColor: CORES.secundaria, borderRadius: RAIO ? RAIO.card : 10, padding: 12, marginBottom: 12 },
+  valorBox: { backgroundColor: CORES.branco, borderWidth: 1, borderColor: CORES.secundaria, borderRadius: RAIO ? RAIO.card : 10, padding: 12, marginBottom: 12 },
   footer: { padding: 20, backgroundColor: CORES.branco, borderTopWidth: 1, borderColor: '#eee' },
   botaoProximo: { backgroundColor: CORES.primaria, padding: 15, borderRadius: 10, alignItems: 'center' } // Corrigido a cor de fundo
 });

@@ -16,6 +16,26 @@ export default function NovaOSCliente({ navigation }) {
     atualizarOS({ cliente: cliente });
   };
 
+  const { excluirCliente } = useApp();
+
+  const onLongPressCliente = (cliente) => {
+    Alert.alert(
+      'Ações',
+      `${cliente.nome}`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Editar', onPress: () => navigation.navigate('NovoCliente', { cliente }) },
+        { text: 'Excluir', style: 'destructive', onPress: () => {
+            Alert.alert('Confirmar exclusão', `Excluir ${cliente.nome}?`, [
+              { text: 'Cancelar', style: 'cancel' },
+              { text: 'Excluir', style: 'destructive', onPress: () => excluirCliente(cliente.id) }
+            ]);
+          }
+        }
+      ]
+    );
+  };
+
   const handleProximo = () => {
     if (!osAtual.cliente) {
       Alert.alert("Selecione o Cliente", "Por favor, selecione um cliente na lista abaixo ou cadastre um novo antes de prosseguir.");
@@ -60,6 +80,7 @@ export default function NovaOSCliente({ navigation }) {
               osAtual.cliente?.id === item.id && styles.itemSelecionado
             ]}
             onPress={() => selecionarCliente(item)}
+            onLongPress={() => onLongPressCliente(item)}
           >
             <View>
                 <Text style={styles.nomeCliente}>{item.nome}</Text>

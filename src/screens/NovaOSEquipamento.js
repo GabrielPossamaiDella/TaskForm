@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useApp } from '../context/AppContext';
 import { CORES, ESTILOS_COMUNS } from '../styles/temas';
 
@@ -15,6 +15,11 @@ export default function NovaOSEquipamento({ navigation }) {
   };
 
   const proximo = () => {
+    if (!maquina || maquina.trim().length === 0) {
+      Alert.alert('Erro', 'Informe o nome da máquina antes de prosseguir.');
+      return;
+    }
+
     atualizarOS({ maquina, defeito });
     navigation.navigate('NovaOSServicos');
   };
