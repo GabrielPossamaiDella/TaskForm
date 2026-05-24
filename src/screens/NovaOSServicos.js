@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useApp } from '../context/AppContext';
 import { CORES, ESTILOS_COMUNS, RAIO } from '../styles/temas';
 
@@ -79,7 +79,13 @@ export default function NovaOSServicos({ navigation }) {
       <View style={styles.footer}>
         <TouchableOpacity 
           style={[ESTILOS_COMUNS.botaoPadrão, styles.botaoProximo]} 
-          onPress={() => navigation.navigate('NovaOSResumo')}
+          onPress={() => {
+            if (!osAtual.cliente) {
+              Alert.alert('Selecione o Cliente', 'Escolha um cliente antes de ir para o resumo.');
+              return;
+            }
+            navigation.navigate('NovaOSResumo');
+          }}
         >
           {/* A cor branca do texto agora aparece pois o fundo é primaria */}
           <Text style={{ color: CORES.branco, fontWeight: 'bold' }}>IR PARA RESUMO</Text>

@@ -67,6 +67,10 @@ export const AppProvider = ({ children }) => {
   };
 
   const finalizarOS = async () => {
+    if (!osAtual.cliente) {
+      throw new Error('Cliente obrigatório para finalizar OS');
+    }
+
     try {
       const somaPecas = osAtual.pecas.reduce((acc, p) => acc + parseFloat(p.valor || 0), 0);
       const totalFinal = parseFloat(osAtual.valorMaoDeObra || 0) + somaPecas;

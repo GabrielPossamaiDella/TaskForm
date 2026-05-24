@@ -105,7 +105,8 @@ export default function NovoCliente({ navigation, route }) {
           value={documento}
           onChangeText={handleDocumentoChange}
           keyboardType="numeric"
-          placeholder="000.000.000-00 ou 00.000.000/0000-00"
+          placeholder="000.000.000-00|00.000.000/0000-00"
+          placeholderTextColor={CORES.placeholder}
           maxLength={18}
         />
 

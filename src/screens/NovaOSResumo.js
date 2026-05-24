@@ -15,6 +15,11 @@ export default function NovaOSResumo({ navigation }) {
   const totalGeral = maoDeObra + totalPecas;
 
   const handleFinalizar = async () => {
+    if (!osAtual.cliente) {
+      Alert.alert('Cliente obrigatório', 'Selecione um cliente antes de finalizar a OS.');
+      return;
+    }
+
     try {
       await finalizarOS();
       Alert.alert('Sucesso', 'Ordem de Serviço salva com sucesso!');

@@ -24,6 +24,7 @@ export const RAIO = {
 
 export const ESTILOS_COMUNS = {
   input: {
+    width: '100%',
     backgroundColor: CORES.branco,
     borderWidth: 1,
     borderColor: '#E0E0E0',

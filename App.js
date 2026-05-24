@@ -3,6 +3,7 @@ import { TouchableOpacity, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 import Login from './src/screens/Login';
@@ -22,6 +23,10 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function HomeTabs() {
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = Platform.OS === 'ios' ? 85 + insets.bottom : 70 + insets.bottom;
+  const tabBarPaddingBottom = Platform.OS === 'ios' ? 25 + insets.bottom : 12 + insets.bottom;
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -29,8 +34,8 @@ function HomeTabs() {
         tabBarStyle: {
           backgroundColor: CORES.primaria,
           borderTopWidth: 0,
-          height: Platform.OS === 'ios' ? 85 : 70,
-          paddingBottom: Platform.OS === 'ios' ? 25 : 12,
+          height: tabBarHeight,
+          paddingBottom: tabBarPaddingBottom,
           paddingTop: 10,
         },
         tabBarActiveTintColor: CORES.sucesso,
@@ -62,8 +67,9 @@ function HomeTabs() {
 export default function App() {
   return (
     <AppProvider>
-      <NavigationContainer>
-        <Stack.Navigator 
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <Stack.Navigator 
           initialRouteName="Login"
           screenOptions={{
             headerStyle: { backgroundColor: CORES.primaria },
@@ -152,6 +158,7 @@ export default function App() {
 
         </Stack.Navigator>
       </NavigationContainer>
+      </SafeAreaProvider>
     </AppProvider>
   );
 }

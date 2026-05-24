@@ -15,6 +15,11 @@ export default function NovaOSEquipamento({ navigation }) {
   };
 
   const proximo = () => {
+    if (!osAtual.cliente) {
+      Alert.alert('Selecione o Cliente', 'Escolha o cliente antes de informar o equipamento.');
+      return;
+    }
+
     if (!maquina || maquina.trim().length === 0) {
       Alert.alert('Erro', 'Informe o nome da máquina antes de prosseguir.');
       return;
