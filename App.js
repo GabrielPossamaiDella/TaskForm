@@ -15,6 +15,7 @@ import NovaOSEquipamento from './src/screens/NovaOSEquipamento';
 import NovaOSServicos from './src/screens/NovaOSServicos';
 import NovaOSResumo from './src/screens/NovaOSResumo';
 import DetalhesOS from './src/screens/DetalhesOS';
+import GestaoClientes from './src/screens/GestaoClientes';
 
 import { CORES } from './src/styles/temas';
 import { AppProvider } from './src/context/AppContext';
@@ -24,8 +25,8 @@ const Tab = createBottomTabNavigator();
 
 function HomeTabs() {
   const insets = useSafeAreaInsets();
-  const tabBarHeight = Platform.OS === 'ios' ? 85 + insets.bottom : 70 + insets.bottom;
-  const tabBarPaddingBottom = Platform.OS === 'ios' ? 25 + insets.bottom : 12 + insets.bottom;
+  const tabBarHeight = Platform.OS === 'ios' ? 60 + insets.bottom : 56 + insets.bottom;
+  const tabBarPaddingBottom = Platform.OS === 'ios' ? 8 + insets.bottom : 6 + insets.bottom;
 
   return (
     <Tab.Navigator
@@ -36,23 +37,22 @@ function HomeTabs() {
           borderTopWidth: 0,
           height: tabBarHeight,
           paddingBottom: tabBarPaddingBottom,
-          paddingTop: 10,
+          paddingTop: 8,
+          overflow: 'visible',
         },
-        tabBarActiveTintColor: CORES.sucesso,
-        tabBarInactiveTintColor: CORES.placeholder,
+        tabBarActiveTintColor: CORES.branco,
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.5)',
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
           if (route.name === 'Painel') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Nova OS') {
             iconName = focused ? 'add-circle' : 'add-circle-outline';
-            size = 32;
-            color = focused ? CORES.sucesso : CORES.branco;
+            size = 34;
+            color = focused ? CORES.branco : 'rgba(255,255,255,0.7)';
           } else if (route.name === 'Perfil') {
             iconName = focused ? 'person' : 'person-outline';
           }
-
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
@@ -143,17 +143,23 @@ export default function App() {
             })} 
           />
 
-          <Stack.Screen 
-            name="DetalhesOS" 
-            component={DetalhesOS} 
-            options={({ navigation }) => ({ 
+          <Stack.Screen
+            name="DetalhesOS"
+            component={DetalhesOS}
+            options={({ navigation }) => ({
               title: 'DETALHES DA OS',
               headerLeft: () => (
                 <TouchableOpacity onPress={() => navigation.navigate('Home', { screen: 'Painel' })} style={{ marginLeft: 5 }}>
                   <Ionicons name="home-outline" size={24} color={CORES.branco} />
                 </TouchableOpacity>
               )
-            })} 
+            })}
+          />
+
+          <Stack.Screen
+            name="GestaoClientes"
+            component={GestaoClientes}
+            options={{ title: 'CLIENTES' }}
           />
 
         </Stack.Navigator>

@@ -1,6 +1,8 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const gerarId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
+
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
@@ -31,7 +33,7 @@ export const AppProvider = ({ children }) => {
 
   // --- CRUD DE CLIENTES ---
   const adicionarCliente = async (novo) => {
-    const novaLista = [...clientes, { ...novo, id: Math.random().toString() }];
+    const novaLista = [...clientes, { ...novo, id: gerarId() }];
     setClientes(novaLista);
     await AsyncStorage.setItem('@clientes', JSON.stringify(novaLista));
   };
@@ -53,6 +55,10 @@ export const AppProvider = ({ children }) => {
 
   const adicionarPecaOS = (novaPeca) => {
     setOsAtual(prev => ({ ...prev, pecas: [...prev.pecas, novaPeca] }));
+  };
+
+  const removerPecaOS = (pecaId) => {
+    setOsAtual(prev => ({ ...prev, pecas: prev.pecas.filter(p => p.id !== pecaId) }));
   };
 
   // Prepara o formulário com os dados da OS selecionada
@@ -86,10 +92,10 @@ export const AppProvider = ({ children }) => {
       else {
         const novaOS = {
           ...osAtual,
-          id: Math.random().toString(),
+          id: gerarId(),
           data: new Date().toLocaleDateString('pt-BR'),
           status: 'Concluída',
-          os_number: `#${Math.floor(100000 + Math.random() * 900000)}`, // Gera um número aleatório de 6 dígitos
+          os_number: `#${String(Date.now()).slice(-6)}`,
           total: totalFinal
         };
         novaListaOS = [novaOS, ...listaOS];
@@ -108,7 +114,7 @@ export const AppProvider = ({ children }) => {
   return (
     <AppContext.Provider value={{ 
       clientes, adicionarCliente, editarCliente, excluirCliente,
-      osAtual, atualizarOS, adicionarPecaOS, listaOS, finalizarOS,
+      osAtual, atualizarOS, adicionarPecaOS, removerPecaOS, listaOS, finalizarOS,
       excluirOS, carregarOSParaEdicao
     }}>
       {children}

@@ -1,94 +1,122 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import {
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  ScrollView, KeyboardAvoidingView, Platform, Alert
+} from 'react-native';
+import { Ionicons, Feather } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
-import { CORES, ESTILOS_COMUNS, RAIO } from '../styles/temas';
+import { CORES, RAIO } from '../styles/temas';
 
 export default function NovaOSServicos({ navigation }) {
-  const { osAtual, atualizarOS, adicionarPecaOS } = useApp();
+  const { osAtual, atualizarOS, adicionarPecaOS, removerPecaOS } = useApp();
   const [nomePeca, setNomePeca] = useState('');
   const [valorPeca, setValorPeca] = useState('');
 
   const handleAdicionarPeca = () => {
-    if (nomePeca && valorPeca) {
-      adicionarPecaOS({ nome: nomePeca, valor: valorPeca, id: Math.random().toString() });
-      setNomePeca('');
-      setValorPeca('');
+    if (!nomePeca.trim() || !valorPeca.trim()) return;
+    adicionarPecaOS({ nome: nomePeca.trim(), valor: valorPeca, id: `${Date.now()}` });
+    setNomePeca('');
+    setValorPeca('');
+  };
+
+  const handleProximo = () => {
+    if (!osAtual.cliente) {
+      Alert.alert('Selecione o Cliente', 'Volte e escolha um cliente antes de prosseguir.');
+      return;
     }
+    navigation.navigate('NovaOSResumo');
   };
 
   return (
-    // KeyboardAvoidingView empurra o conteúdo para cima quando o teclado abre
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === "ios" ? "padding" : "height"} 
-      style={{ flex: 1 }}
-    >
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.servicoBox}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+
+        <View style={styles.progressoContainer}>
+          <View style={styles.passoInativo}><Text style={styles.passoInativoTxt}>1. Cliente</Text></View>
+          <View style={styles.passoInativo}><Text style={styles.passoInativoTxt}>2. Equipamento</Text></View>
+          <View style={styles.passoAtivo}><Text style={styles.passoAtivoTxt}>3. Serviço</Text></View>
+        </View>
+
+        {/* Serviço executado */}
+        <View style={styles.card}>
           <Text style={styles.label}>Serviço Executado</Text>
-          <TextInput 
-            style={[ESTILOS_COMUNS.inputModerno, { height: 80, textAlignVertical: 'top' }]} 
-            value={osAtual.servico} 
-            onChangeText={(txt) => atualizarOS({ servico: txt })} 
-            multiline 
+          <TextInput
+            style={[styles.input, { height: 90, textAlignVertical: 'top' }]}
+            value={osAtual.servico}
+            onChangeText={txt => atualizarOS({ servico: txt })}
+            multiline
+            placeholder="Descreva o serviço realizado..."
+            placeholderTextColor={CORES.placeholder}
           />
         </View>
 
-        <View style={styles.valorBox}>
+        {/* Mão de obra */}
+        <View style={styles.card}>
           <Text style={styles.label}>Valor da Mão de Obra (R$)</Text>
-          <TextInput 
-            style={ESTILOS_COMUNS.inputModerno} 
-            value={String(osAtual.valorMaoDeObra)} 
-            onChangeText={(txt) => atualizarOS({ valorMaoDeObra: txt })} 
-            keyboardType="numeric" 
+          <TextInput
+            style={styles.input}
+            value={String(osAtual.valorMaoDeObra)}
+            onChangeText={txt => atualizarOS({ valorMaoDeObra: txt })}
+            keyboardType="numeric"
+            placeholder="120,00"
+            placeholderTextColor={CORES.placeholder}
           />
         </View>
 
-        <View style={styles.divisor} />
-
-        <Text style={styles.label}>Adicionar Peças / Materiais</Text>
-        <View style={styles.row}>
-          <TextInput 
-            style={[ESTILOS_COMUNS.inputModerno, { flex: 2, marginBottom: 0 }]} 
-            placeholder="Peça" 
-            value={nomePeca} 
-            onChangeText={setNomePeca} 
-          />
-          <TextInput 
-            style={[ESTILOS_COMUNS.inputModerno, { flex: 1, marginLeft: 10, marginBottom: 0 }]} 
-            placeholder="R$" 
-            value={valorPeca} 
-            onChangeText={setValorPeca} 
-            keyboardType="numeric" 
-          />
-        </View>
-        
-        <TouchableOpacity style={styles.btnAdicionar} onPress={handleAdicionarPeca}>
-          <Text style={styles.txtAdicionar}>+ ADICIONAR NA LISTA</Text>
-        </TouchableOpacity>
-
-        {osAtual.pecas.map((item) => (
-          <View key={item.id} style={styles.itemPeca}>
-            <Text style={styles.nomePeca}>{item.nome}</Text>
-            <Text style={styles.valorPeca}>R$ {parseFloat(item.valor).toFixed(2)}</Text>
+        {/* Peças */}
+        <View style={styles.card}>
+          <Text style={styles.label}>Peças / Materiais</Text>
+          <View style={styles.rowPeca}>
+            <TextInput
+              style={[styles.input, { flex: 2, marginRight: 8 }]}
+              placeholder="Nome da peça"
+              placeholderTextColor={CORES.placeholder}
+              value={nomePeca}
+              onChangeText={setNomePeca}
+            />
+            <TextInput
+              style={[styles.input, { flex: 1 }]}
+              placeholder="R$"
+              placeholderTextColor={CORES.placeholder}
+              value={valorPeca}
+              onChangeText={setValorPeca}
+              keyboardType="numeric"
+            />
           </View>
-        ))}
+          <TouchableOpacity style={styles.btnAdicionar} onPress={handleAdicionarPeca}>
+            <Ionicons name="add-circle-outline" size={18} color={CORES.secundaria} style={{ marginRight: 6 }} />
+            <Text style={styles.btnAdicionarTxt}>ADICIONAR NA LISTA</Text>
+          </TouchableOpacity>
+
+          {osAtual.pecas.length > 0 && (
+            <View style={styles.listaPecas}>
+              {osAtual.pecas.map((item) => (
+                <View key={item.id} style={styles.itemPeca}>
+                  <Text style={styles.nomePeca} numberOfLines={1}>{item.nome}</Text>
+                  <Text style={styles.valorPecaTxt}>R$ {parseFloat(item.valor).toFixed(2)}</Text>
+                  <TouchableOpacity
+                    onPress={() => removerPecaOS(item.id)}
+                    style={styles.btnRemoverPeca}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  >
+                    <Feather name="trash-2" size={16} color="#DC3545" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
 
       </ScrollView>
 
-      {/* Footer Fixo */}
       <View style={styles.footer}>
-        <TouchableOpacity 
-          style={[ESTILOS_COMUNS.botaoPadrão, styles.botaoProximo]} 
-          onPress={() => {
-            if (!osAtual.cliente) {
-              Alert.alert('Selecione o Cliente', 'Escolha um cliente antes de ir para o resumo.');
-              return;
-            }
-            navigation.navigate('NovaOSResumo');
-          }}
-        >
-          {/* A cor branca do texto agora aparece pois o fundo é primaria */}
-          <Text style={{ color: CORES.branco, fontWeight: 'bold' }}>IR PARA RESUMO</Text>
+        <TouchableOpacity style={styles.btnVoltar} onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={18} color={CORES.textoSecundario} />
+          <Text style={styles.btnVoltarTxt}>VOLTAR</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.btnProximo} onPress={handleProximo}>
+          <Text style={styles.btnProximoTxt}>IR PARA RESUMO</Text>
+          <Ionicons name="arrow-forward" size={18} color="#fff" style={{ marginLeft: 6 }} />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -96,17 +124,49 @@ export default function NovaOSServicos({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20, flexGrow: 1, backgroundColor: CORES.fundo },
-  label: { fontSize: 14, fontWeight: 'bold', color: CORES.textoSecundario, marginTop: 15, marginBottom: 5 },
-  row: { flexDirection: 'row', alignItems: 'center' },
-  btnAdicionar: { backgroundColor: CORES.secundaria, padding: 12, borderRadius: 8, marginTop: 10, alignItems: 'center' },
-  txtAdicionar: { color: '#fff', fontWeight: 'bold' },
-  itemPeca: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#fff', padding: 12, borderRadius: 8, marginTop: 8, borderWidth: 1, borderColor: '#eee' },
-  nomePeca: { color: CORES.textoPrincipal },
-  valorPeca: { fontWeight: 'bold', color: CORES.sucesso },
-  divisor: { height: 1, backgroundColor: '#ddd', marginVertical: 20 },
-  servicoBox: { backgroundColor: CORES.branco, borderWidth: 1, borderColor: CORES.secundaria, borderRadius: RAIO ? RAIO.card : 10, padding: 12, marginBottom: 12 },
-  valorBox: { backgroundColor: CORES.branco, borderWidth: 1, borderColor: CORES.secundaria, borderRadius: RAIO ? RAIO.card : 10, padding: 12, marginBottom: 12 },
-  footer: { padding: 20, backgroundColor: CORES.branco, borderTopWidth: 1, borderColor: '#eee' },
-  botaoProximo: { backgroundColor: CORES.primaria, padding: 15, borderRadius: 10, alignItems: 'center' } // Corrigido a cor de fundo
+  container: { padding: 20, flexGrow: 1, backgroundColor: CORES.fundo, paddingBottom: 10 },
+  progressoContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+  passoAtivo: { backgroundColor: CORES.primaria, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
+  passoAtivoTxt: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
+  passoInativo: { paddingHorizontal: 12, paddingVertical: 6 },
+  passoInativoTxt: { color: CORES.placeholder, fontSize: 12 },
+  card: {
+    backgroundColor: CORES.branco, borderRadius: RAIO.card, padding: 16,
+    marginBottom: 14, borderWidth: 1, borderColor: CORES.divisor, elevation: 1,
+  },
+  label: { fontSize: 12, fontWeight: 'bold', color: CORES.secundaria, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 },
+  input: {
+    backgroundColor: CORES.fundo, borderWidth: 1, borderColor: CORES.divisor,
+    borderRadius: RAIO.input, paddingHorizontal: 14, paddingVertical: 12,
+    fontSize: 15, color: CORES.textoPrincipal,
+  },
+  rowPeca: { flexDirection: 'row', marginBottom: 10 },
+  btnAdicionar: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: CORES.secundaria, borderRadius: RAIO.input,
+    padding: 10,
+  },
+  btnAdicionarTxt: { color: CORES.secundaria, fontWeight: 'bold', fontSize: 13 },
+  listaPecas: { marginTop: 12 },
+  itemPeca: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingVertical: 8, borderBottomWidth: 1, borderColor: CORES.divisor,
+  },
+  nomePeca: { fontSize: 14, color: CORES.textoPrincipal, flex: 1, marginRight: 8 },
+  valorPecaTxt: { fontSize: 14, fontWeight: 'bold', color: CORES.primaria, marginRight: 10 },
+  btnRemoverPeca: { padding: 4 },
+  footer: {
+    flexDirection: 'row', padding: 16, backgroundColor: CORES.branco,
+    borderTopWidth: 1, borderColor: CORES.divisor, gap: 10,
+  },
+  btnVoltar: {
+    flexDirection: 'row', alignItems: 'center', paddingVertical: 14,
+    paddingHorizontal: 14, borderRadius: RAIO.botao, borderWidth: 1, borderColor: CORES.divisor,
+  },
+  btnVoltarTxt: { color: CORES.textoSecundario, fontWeight: 'bold', marginLeft: 6 },
+  btnProximo: {
+    flex: 1, backgroundColor: CORES.primaria, borderRadius: RAIO.botao, paddingVertical: 14,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+  },
+  btnProximoTxt: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
 });

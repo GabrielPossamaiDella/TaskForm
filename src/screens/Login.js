@@ -1,7 +1,7 @@
 // src/screens/Login.js
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView, Image } from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CORES, RAIO } from '../styles/temas';
@@ -40,9 +40,11 @@ export default function Login({ navigation }) {
           <View style={styles.cardLogin}>
             
             <View style={styles.logoContainer}>
-              <View style={styles.iconCircle}>
-                <MaterialCommunityIcons name="shield-check" size={40} color={CORES.secundaria} />
-              </View>
+              <Image
+                source={require('../../assets/logo.png')}
+                style={styles.logoImg}
+                resizeMode="contain"
+              />
               <View style={styles.row}>
                 <Text style={styles.logoBold}>TASKFORM </Text>
                 <Text style={styles.logoLight}>| TECFLEX</Text>
@@ -105,7 +107,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   logoContainer: { alignItems: 'center', marginBottom: 40 },
-  iconCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: CORES.lavandaClaro, justifyContent: 'center', alignItems: 'center', marginBottom: 15 },
+  logoImg: { width: 160, height: 70, marginBottom: 12 },
   row: { flexDirection: 'row', alignItems: 'center' },
   logoBold: { fontSize: 24, fontWeight: 'bold', color: CORES.textoPrincipal },
   logoLight: { fontSize: 24, color: CORES.secundaria, fontWeight: '300' },

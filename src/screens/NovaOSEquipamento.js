@@ -1,67 +1,86 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
-import { CORES, ESTILOS_COMUNS } from '../styles/temas';
+import { CORES, RAIO } from '../styles/temas';
 
-const DEFEITOS_COMUNS = ["Ponto pulando", "Quebrando agulha", "Linha arrebentando", "Barulho anormal", "Máquina travada"];
+const DEFEITOS_COMUNS = [
+  'Ponto pulando', 'Quebrando agulha', 'Linha arrebentando',
+  'Barulho anormal', 'Máquina travada', 'Tensão irregular',
+];
 
 export default function NovaOSEquipamento({ navigation }) {
   const { osAtual, atualizarOS } = useApp();
   const [maquina, setMaquina] = useState(osAtual.maquina || '');
   const [defeito, setDefeito] = useState(osAtual.defeito || '');
 
-  const selecionarTag = (tag) => {
-    setDefeito(prev => prev ? `${prev}, ${tag}` : tag);
-  };
+  const selecionarTag = (tag) => setDefeito(prev => prev ? `${prev}, ${tag}` : tag);
 
   const proximo = () => {
-    if (!osAtual.cliente) {
-      Alert.alert('Selecione o Cliente', 'Escolha o cliente antes de informar o equipamento.');
+    if (!maquina.trim()) {
+      Alert.alert('Campo obrigatório', 'Informe o modelo da máquina antes de prosseguir.');
       return;
     }
-
-    if (!maquina || maquina.trim().length === 0) {
-      Alert.alert('Erro', 'Informe o nome da máquina antes de prosseguir.');
-      return;
-    }
-
     atualizarOS({ maquina, defeito });
     navigation.navigate('NovaOSServicos');
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
       <View style={styles.progressoContainer}>
-        <Text style={styles.passoInativo}>Cliente</Text>
-        <Text style={styles.passoAtivo}>Equipamento</Text>
-        <Text style={styles.passoInativo}>Serviço</Text>
+        <View style={styles.passoInativo}><Text style={styles.passoInativoTxt}>1. Cliente</Text></View>
+        <View style={styles.passoAtivo}><Text style={styles.passoAtivoTxt}>2. Equipamento</Text></View>
+        <View style={styles.passoInativo}><Text style={styles.passoInativoTxt}>3. Serviço</Text></View>
       </View>
 
-      <Text style={styles.label}>Qual a máquina?</Text>
-      <TextInput style={ESTILOS_COMUNS.input} value={maquina} onChangeText={setMaquina} placeholder="Ex: Reta Eletrônica Sunsure" />
-
-      <Text style={styles.label}>Defeito Reclamado</Text>
-      <View style={styles.containerTags}>
-        {DEFEITOS_COMUNS.map(item => (
-          <TouchableOpacity key={item} style={styles.tag} onPress={() => selecionarTag(item)}>
-            <Text style={styles.textoTag}>+ {item}</Text>
-          </TouchableOpacity>
-        ))}
+      {/* Máquina */}
+      <View style={styles.card}>
+        <View style={styles.labelRow}>
+          <Ionicons name="settings-outline" size={16} color={CORES.secundaria} />
+          <Text style={styles.label}>Modelo da Máquina *</Text>
+        </View>
+        <TextInput
+          style={styles.input}
+          value={maquina}
+          onChangeText={setMaquina}
+          placeholder="Ex: Reta Eletrônica Sunsure SS-550"
+          placeholderTextColor={CORES.placeholder}
+        />
       </View>
 
-      <TextInput 
-        style={[ESTILOS_COMUNS.input, { height: 100, textAlignVertical: 'top' }]} 
-        value={defeito} onChangeText={setDefeito} 
-        placeholder="Descreva o problema detalhadamente..." 
-        multiline 
-      />
+      {/* Defeito */}
+      <View style={styles.card}>
+        <View style={styles.labelRow}>
+          <Ionicons name="alert-circle-outline" size={16} color={CORES.secundaria} />
+          <Text style={styles.label}>Defeito / Reclamação</Text>
+        </View>
+        <Text style={styles.sublabel}>Toque para adicionar defeitos comuns:</Text>
+        <View style={styles.tagsContainer}>
+          {DEFEITOS_COMUNS.map(tag => (
+            <TouchableOpacity key={tag} style={styles.tag} onPress={() => selecionarTag(tag)}>
+              <Text style={styles.tagTxt}>+ {tag}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <TextInput
+          style={[styles.input, { height: 100, textAlignVertical: 'top', marginTop: 10 }]}
+          value={defeito}
+          onChangeText={setDefeito}
+          placeholder="Descreva o problema detalhadamente..."
+          placeholderTextColor={CORES.placeholder}
+          multiline
+        />
+      </View>
 
+      {/* Botões */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.botaoVoltar} onPress={() => navigation.goBack()}>
-          <Text style={styles.textoVoltar}>VOLTAR</Text>
+        <TouchableOpacity style={styles.btnVoltar} onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={18} color={CORES.textoSecundario} />
+          <Text style={styles.btnVoltarTxt}>VOLTAR</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.botaoProximo} onPress={proximo}>
-          <Text style={ESTILOS_COMUNS.textoBotao}>PRÓXIMO</Text>
+        <TouchableOpacity style={styles.btnProximo} onPress={proximo}>
+          <Text style={styles.btnProximoTxt}>PRÓXIMO</Text>
+          <Ionicons name="arrow-forward" size={18} color="#fff" style={{ marginLeft: 6 }} />
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -70,15 +89,54 @@ export default function NovaOSEquipamento({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: CORES.fundo, padding: 20 },
-  progressoContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 25, backgroundColor: CORES.branco, padding: 10, borderRadius: 10 },
-  passoAtivo: { color: CORES.primaria, fontWeight: 'bold', fontSize: 12 },
-  passoInativo: { color: CORES.placeholder, fontSize: 12 },
-  label: { fontSize: 18, fontWeight: 'bold', color: CORES.textoPrincipal, marginTop: 10 },
-  containerTags: { flexDirection: 'row', flexWrap: 'wrap', marginVertical: 15 },
-  tag: { backgroundColor: '#E8F0FE', padding: 8, borderRadius: 20, marginRight: 8, marginBottom: 8, borderWidth: 1, borderColor: CORES.secundaria },
-  textoTag: { color: CORES.secundaria, fontSize: 12, fontWeight: 'bold' },
-  footer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 40, marginBottom: 40 },
-  botaoVoltar: { flex: 1, marginRight: 10, padding: 15, alignItems: 'center', justifyContent: 'center' },
-  botaoProximo: { flex: 2, backgroundColor: CORES.primaria, borderRadius: 10, padding: 15, alignItems: 'center' },
-  textoVoltar: { color: CORES.textoSecundario, fontWeight: 'bold' }
+  progressoContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+  passoAtivo: { backgroundColor: CORES.primaria, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
+  passoAtivoTxt: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
+  passoInativo: { paddingHorizontal: 12, paddingVertical: 6 },
+  passoInativoTxt: { color: CORES.placeholder, fontSize: 12 },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: RAIO.card,
+    padding: 16,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: CORES.divisor,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  labelRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  label: { fontSize: 12, fontWeight: 'bold', color: CORES.secundaria, marginLeft: 6, textTransform: 'uppercase', letterSpacing: 0.5 },
+  sublabel: { fontSize: 12, color: CORES.placeholder, marginBottom: 8 },
+  input: {
+    backgroundColor: CORES.fundo,
+    borderWidth: 1,
+    borderColor: CORES.divisor,
+    borderRadius: RAIO.input,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: CORES.textoPrincipal,
+  },
+  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap' },
+  tag: {
+    backgroundColor: CORES.lightPurple,
+    paddingHorizontal: 10, paddingVertical: 6,
+    borderRadius: 20, marginRight: 8, marginBottom: 8,
+    borderWidth: 1, borderColor: CORES.secundaria,
+  },
+  tagTxt: { color: CORES.secundaria, fontSize: 12, fontWeight: '600' },
+  footer: { flexDirection: 'row', gap: 10, marginTop: 6 },
+  btnVoltar: {
+    flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 14,
+    borderRadius: RAIO.botao, borderWidth: 1, borderColor: CORES.divisor,
+  },
+  btnVoltarTxt: { color: CORES.textoSecundario, fontWeight: 'bold', marginLeft: 6 },
+  btnProximo: {
+    flex: 1, backgroundColor: CORES.primaria, borderRadius: RAIO.botao, paddingVertical: 14,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+  },
+  btnProximoTxt: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
 });
