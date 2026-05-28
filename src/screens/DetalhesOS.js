@@ -1,38 +1,42 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Alert, Image } from 'react-native';
+import React, { useLayoutEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
-import { CORES, RAIO } from '../styles/temas';
+import { CORES } from '../styles/temas';
+
+const HEADER_BG = '#1A237E';
+const ACCENT = '#5A54FF';
 
 export default function DetalhesOS({ route, navigation }) {
   const { osSelecionada } = route.params;
   const { excluirOS, carregarOSParaEdicao } = useApp();
+  const insets = useSafeAreaInsets();
+  useLayoutEffect(() => { navigation.setOptions({ headerShown: false }); }, [navigation]);
 
   const gerarECompartilharPDF = async () => {
     try {
-      // Logo: custom do AsyncStorage ou padrão do app via cache
+      // Logo: custom do AsyncStorage ou padrão via expo-asset
       let logoDataUri = '';
       try {
         const customLogo = await AsyncStorage.getItem('@logo_pdf');
         if (customLogo) {
           logoDataUri = customLogo;
         } else {
-          // resolveAssetSource retorna http:// no Expo Go e file:// em produção
-          const { uri: assetUri } = Image.resolveAssetSource(require('../../assets/logo.png'));
-          const cacheUri = `${FileSystem.cacheDirectory}logo_pdf_default.png`;
-          if (assetUri.startsWith('http://') || assetUri.startsWith('https://')) {
-            await FileSystem.downloadAsync(assetUri, cacheUri);
-          } else {
-            await FileSystem.copyAsync({ from: assetUri, to: cacheUri });
+          const asset = Asset.fromModule(require('../../assets/logo.png'));
+          await asset.downloadAsync();
+          // localUri é um file:// garantido após downloadAsync em todas as plataformas
+          if (asset.localUri) {
+            const b64 = await FileSystem.readAsStringAsync(asset.localUri, {
+              encoding: FileSystem.EncodingType.Base64,
+            });
+            if (b64) logoDataUri = `data:image/png;base64,${b64}`;
           }
-          const b64 = await FileSystem.readAsStringAsync(cacheUri, {
-            encoding: FileSystem.EncodingType.Base64,
-          });
-          logoDataUri = `data:image/png;base64,${b64}`;
         }
       } catch (_) {}
 
@@ -218,19 +222,52 @@ export default function DetalhesOS({ route, navigation }) {
     );
   };
 
-  const InfoRow = ({ label, valor }) => (
-    <View style={styles.infoRow}>
-      <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValor}>{valor || '—'}</Text>
-    </View>
-  );
-
   return (
-    <SafeAreaView style={styles.safe}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <View style={{ flex: 1, backgroundColor: '#F0F2F8' }}>
 
-        {/* Header status */}
-        <View style={styles.statusHeader}>
+      {/* Top Bar customizada */}
+      <View style={[styles.topBar, { paddingTop: 12 + insets.top }]}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Home', { screen: 'Painel' })}
+          style={styles.topBarBtn}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Ionicons name="arrow-back" size={22} color="#fff" />
+        </TouchableOpacity>
+
+        <View style={styles.topBarCenter}>
+          <Text style={styles.topBarTitle}>AJUSTES DA OS</Text>
+        </View>
+
+        <View style={styles.topBarAcoes}>
+          <TouchableOpacity
+            style={[styles.topBarIconBtn, { backgroundColor: '#22C55E' }]}
+            onPress={gerarECompartilharPDF}
+          >
+            <Ionicons name="share-social-outline" size={16} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.topBarIconBtn, { backgroundColor: ACCENT }]}
+            onPress={handleEditar}
+          >
+            <Feather name="edit-2" size={14} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.topBarIconBtn, { backgroundColor: 'rgba(255,255,255,0.18)' }]}
+            onPress={handleExcluir}
+          >
+            <Feather name="trash-2" size={14} color="rgba(255,255,255,0.85)" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 24 + insets.bottom }]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* OS número + status */}
+        <View style={styles.osStatusRow}>
           <Text style={styles.osNumero}>{osSelecionada.os_number}</Text>
           <View style={styles.badge}>
             <Text style={styles.badgeTxt}>CONCLUÍDA</Text>
@@ -241,10 +278,15 @@ export default function DetalhesOS({ route, navigation }) {
         {/* Card Cliente */}
         <View style={styles.card}>
           <View style={styles.cardTituloRow}>
-            <Ionicons name="person-outline" size={16} color={CORES.secundaria} />
+            <View style={styles.cardIcone}>
+              <Ionicons name="person" size={13} color={ACCENT} />
+            </View>
             <Text style={styles.cardTitulo}>CLIENTE</Text>
           </View>
           <Text style={styles.cardDestaque}>{osSelecionada.cliente?.nome || 'Cliente Avulso'}</Text>
+          {osSelecionada.cliente?.documento ? (
+            <Text style={styles.cardSub}>{osSelecionada.cliente.documento}</Text>
+          ) : null}
           {osSelecionada.cliente?.telefone ? (
             <Text style={styles.cardSub}>{osSelecionada.cliente.telefone}</Text>
           ) : null}
@@ -253,100 +295,116 @@ export default function DetalhesOS({ route, navigation }) {
         {/* Card Equipamento */}
         <View style={styles.card}>
           <View style={styles.cardTituloRow}>
-            <Ionicons name="settings-outline" size={16} color={CORES.secundaria} />
+            <View style={styles.cardIcone}>
+              <Ionicons name="settings-outline" size={13} color={ACCENT} />
+            </View>
             <Text style={styles.cardTitulo}>EQUIPAMENTO</Text>
           </View>
           <Text style={styles.cardDestaque}>{osSelecionada.maquina}</Text>
           <Text style={styles.cardSub}>{osSelecionada.servico || osSelecionada.defeito || '—'}</Text>
         </View>
 
-        {/* Card Financeiro */}
+        {/* Card Peças */}
         {osSelecionada.pecas?.length > 0 && (
           <View style={styles.card}>
             <View style={styles.cardTituloRow}>
-              <Ionicons name="construct-outline" size={16} color={CORES.secundaria} />
+              <View style={styles.cardIcone}>
+                <Ionicons name="construct-outline" size={13} color={ACCENT} />
+              </View>
               <Text style={styles.cardTitulo}>PEÇAS / MATERIAIS</Text>
             </View>
             {osSelecionada.pecas.map((p, i) => (
-              <InfoRow key={i} label={p.nome} valor={`R$ ${parseFloat(p.valor).toFixed(2)}`} />
+              <View
+                key={i}
+                style={[styles.pecaRow, i === osSelecionada.pecas.length - 1 && { borderBottomWidth: 0 }]}
+              >
+                <Text style={styles.pecaNome}>{p.nome}</Text>
+                <Text style={styles.pecaValor}>R$ {parseFloat(p.valor).toFixed(2)}</Text>
+              </View>
             ))}
           </View>
         )}
 
+        {/* Card Financeiro — fundo escuro */}
         <View style={styles.cardTotal}>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Mão de Obra</Text>
-            <Text style={styles.totalValorSub}>R$ {parseFloat(osSelecionada.valorMaoDeObra || 0).toFixed(2)}</Text>
+            <Text style={styles.totalValorSub}>
+              R$ {parseFloat(osSelecionada.valorMaoDeObra || 0).toFixed(2)}
+            </Text>
           </View>
-          <View style={styles.divisor} />
+          {osSelecionada.pecas?.length > 0 && (
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>
+                Peças ({osSelecionada.pecas.length} {osSelecionada.pecas.length === 1 ? 'item' : 'itens'})
+              </Text>
+              <Text style={styles.totalValorSub}>
+                R$ {osSelecionada.pecas.reduce((a, p) => a + parseFloat(p.valor || 0), 0).toFixed(2)}
+              </Text>
+            </View>
+          )}
+          <View style={styles.totalDivisor} />
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>TOTAL GERAL</Text>
-            <Text style={styles.totalValor}>R$ {parseFloat(osSelecionada.total).toFixed(2)}</Text>
+            <Text style={styles.totalLabelMain}>TOTAL GERAL</Text>
+            <Text style={styles.totalValorMain}>
+              R$ {parseFloat(osSelecionada.total).toFixed(2)}
+            </Text>
           </View>
         </View>
-
-        {/* Ações */}
-        <TouchableOpacity style={[styles.btnAcao, { backgroundColor: CORES.primaria }]} onPress={gerarECompartilharPDF}>
-          <Ionicons name="share-social-outline" size={20} color="#fff" style={styles.btnIcon} />
-          <Text style={styles.btnAcaoTxt}>GERAR PDF / COMPARTILHAR</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.btnAcao, { backgroundColor: CORES.secundaria }]} onPress={handleEditar}>
-          <Feather name="edit-2" size={18} color="#fff" style={styles.btnIcon} />
-          <Text style={styles.btnAcaoTxt}>EDITAR OS</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.btnAcao, styles.btnExcluir]} onPress={handleExcluir}>
-          <Feather name="trash-2" size={18} color="#DC3545" style={styles.btnIcon} />
-          <Text style={[styles.btnAcaoTxt, { color: '#DC3545' }]}>EXCLUIR OS</Text>
-        </TouchableOpacity>
-
-        <View style={{ height: 40 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: CORES.fundo },
-  container: { flex: 1, padding: 20 },
+  topBar: {
+    backgroundColor: HEADER_BG, flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 16, paddingBottom: 14, gap: 10,
+  },
+  topBarBtn: { padding: 4 },
+  topBarCenter: { flex: 1, alignItems: 'center' },
+  topBarTitle: { fontSize: 13, fontWeight: '800', color: '#fff', letterSpacing: 1 },
+  topBarSub: { fontSize: 9, color: 'rgba(255,255,255,0.45)', letterSpacing: 1.5, marginTop: 2 },
+  topBarAcoes: { flexDirection: 'row', gap: 8 },
+  topBarIconBtn: { width: 34, height: 34, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
 
-  statusHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  osNumero: { fontSize: 20, fontWeight: 'bold', color: CORES.primaria },
-  badge: { backgroundColor: CORES.sucesso, paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
-  badgeTxt: { color: CORES.textoSucesso, fontSize: 11, fontWeight: 'bold' },
-  dataTexto: { fontSize: 13, color: CORES.textoSecundario, marginBottom: 20 },
+  scroll: { flex: 1, backgroundColor: '#F0F2F8' },
+  scrollContent: { padding: 20 },
+
+  osStatusRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
+  osNumero: { fontSize: 20, fontWeight: '800', color: ACCENT },
+  badge: { backgroundColor: '#E8F5E9', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
+  badgeTxt: { color: '#2E7D32', fontSize: 10, fontWeight: '700' },
+  dataTexto: { fontSize: 12, color: '#888', marginBottom: 18 },
 
   card: {
-    backgroundColor: CORES.branco, borderRadius: RAIO.card, padding: 16,
-    marginBottom: 12, elevation: 1, borderWidth: 1, borderColor: CORES.divisor,
+    backgroundColor: '#fff', borderRadius: 16, padding: 16, marginBottom: 12,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
-  cardTituloRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  cardTitulo: { fontSize: 11, fontWeight: 'bold', color: CORES.secundaria, letterSpacing: 1, marginLeft: 6 },
-  cardDestaque: { fontSize: 18, fontWeight: 'bold', color: CORES.textoPrincipal },
-  cardSub: { fontSize: 14, color: CORES.textoSecundario, marginTop: 4, lineHeight: 20 },
+  cardTituloRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  cardIcone: {
+    width: 26, height: 26, borderRadius: 8, backgroundColor: '#EEEEFF',
+    justifyContent: 'center', alignItems: 'center', marginRight: 8,
+  },
+  cardTitulo: { fontSize: 10, fontWeight: '800', color: ACCENT, letterSpacing: 1.2 },
+  cardDestaque: { fontSize: 17, fontWeight: '700', color: '#111', marginBottom: 4 },
+  cardSub: { fontSize: 13, color: '#666', marginTop: 2, lineHeight: 20 },
 
-  infoRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4 },
-  infoLabel: { fontSize: 14, color: CORES.textoSecundario, flex: 1 },
-  infoValor: { fontSize: 14, fontWeight: '600', color: CORES.textoPrincipal },
+  pecaRow: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: '#F0F0F0',
+  },
+  pecaNome: { fontSize: 13, color: '#333', flex: 1 },
+  pecaValor: { fontSize: 13, fontWeight: '700', color: ACCENT },
 
   cardTotal: {
-    backgroundColor: CORES.primaria, borderRadius: RAIO.card, padding: 20,
-    marginBottom: 20, elevation: 2,
+    backgroundColor: HEADER_BG, borderRadius: 16, padding: 20, marginBottom: 8,
+    shadowColor: HEADER_BG, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.35, shadowRadius: 14, elevation: 6,
   },
-  totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  totalLabel: { fontSize: 14, color: 'rgba(255,255,255,0.8)', fontWeight: '600' },
-  totalValorSub: { fontSize: 14, color: CORES.branco, fontWeight: 'bold' },
-  divisor: { height: 1, backgroundColor: 'rgba(255,255,255,0.2)', marginVertical: 12 },
-  totalValor: { fontSize: 26, fontWeight: 'bold', color: CORES.branco },
-
-  btnAcao: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    paddingVertical: 14, borderRadius: RAIO.botao, marginBottom: 12, elevation: 1,
-  },
-  btnExcluir: {
-    backgroundColor: CORES.branco, borderWidth: 1, borderColor: '#FFCDD2',
-  },
-  btnIcon: { marginRight: 8 },
-  btnAcaoTxt: { color: '#fff', fontWeight: 'bold', fontSize: 14, letterSpacing: 0.5 },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 4 },
+  totalLabel: { fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: '500' },
+  totalValorSub: { fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: '700' },
+  totalDivisor: { height: 1, backgroundColor: 'rgba(255,255,255,0.15)', marginVertical: 12 },
+  totalLabelMain: { fontSize: 14, fontWeight: '800', color: '#fff' },
+  totalValorMain: { fontSize: 26, fontWeight: '800', color: '#fff' },
 });

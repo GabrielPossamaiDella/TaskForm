@@ -104,10 +104,9 @@ export default function ClienteModal({ visible, onClose, onSalvar, clienteParaEd
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.overlay}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
         >
           <View style={styles.sheet}>
-            {/* Header */}
             <View style={styles.header}>
               <View style={styles.stepIndicator}>
                 <View style={[styles.stepDot, step >= 1 && styles.stepDotAtivo]} />
@@ -123,7 +122,7 @@ export default function ClienteModal({ visible, onClose, onSalvar, clienteParaEd
             <ScrollView
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: 30 }}
+              contentContainerStyle={{ paddingBottom: 60 }}
             >
               {step === 1 ? (
                 <View style={styles.corpo}>
@@ -252,7 +251,7 @@ function Campo({ label, children }) {
 const styles = StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
   sheet: {
-    backgroundColor: CORES.branco,
+    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
@@ -273,9 +272,14 @@ const styles = StyleSheet.create({
   corpo: { paddingTop: 8 },
   label: { fontSize: 12, fontWeight: '600', color: CORES.textoSecundario, marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 },
   input: {
-    backgroundColor: CORES.fundo, borderWidth: 1, borderColor: CORES.divisor,
-    borderRadius: RAIO.input, paddingHorizontal: 14, paddingVertical: 12,
-    fontSize: 15, color: CORES.textoPrincipal,
+    backgroundColor: '#F7F7F7',
+    borderWidth: 1.5,
+    borderColor: '#E0E0E0',
+    borderRadius: RAIO.input,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: '#1A1A1A',
   },
   inputRow: { flexDirection: 'row', alignItems: 'center' },
   dica: { fontSize: 11, color: CORES.secundaria, marginTop: 4, fontStyle: 'italic' },

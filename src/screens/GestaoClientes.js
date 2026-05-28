@@ -1,61 +1,16 @@
-import React, { useState, useRef } from 'react';
-import {
-  View, Text, TextInput, TouchableOpacity, Alert,
-  StyleSheet, SafeAreaView, FlatList, Animated, PanResponder
-} from 'react-native';
-import { Ionicons, Feather } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, FlatList } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
-import { CORES, RAIO } from '../styles/temas';
+import { CORES } from '../styles/temas';
 import ClienteModal from '../components/ClienteModal';
 
-const SWIPE_WIDTH = 120;
-
-function SwipeableRow({ onEditar, onExcluir, children }) {
-  const translateX = useRef(new Animated.Value(0)).current;
-  const aberto = useRef(false);
-
-  const pan = useRef(PanResponder.create({
-    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 8 && Math.abs(g.dy) < 20,
-    onPanResponderMove: (_, g) => {
-      const base = aberto.current ? -SWIPE_WIDTH : 0;
-      const val = base + g.dx;
-      if (val <= 0) translateX.setValue(Math.max(val, -SWIPE_WIDTH));
-    },
-    onPanResponderRelease: (_, g) => {
-      const base = aberto.current ? -SWIPE_WIDTH : 0;
-      const moved = base + g.dx;
-      const shouldOpen = moved < -30 || (g.vx < -0.5 && !aberto.current);
-      aberto.current = shouldOpen;
-      Animated.spring(translateX, { toValue: shouldOpen ? -SWIPE_WIDTH : 0, useNativeDriver: true, tension: 40, friction: 8 }).start();
-    },
-  })).current;
-
-  const fechar = () => {
-    aberto.current = false;
-    Animated.spring(translateX, { toValue: 0, useNativeDriver: true }).start();
-  };
-
-  return (
-    <View style={{ overflow: 'hidden' }}>
-      <Animated.View style={{ flexDirection: 'row', transform: [{ translateX }] }} {...pan.panHandlers}>
-        <View style={{ flex: 1 }}>
-          {children}
-        </View>
-        <TouchableOpacity style={[styles.btnAcao, { backgroundColor: CORES.secundaria }]} onPress={() => { fechar(); onEditar(); }}>
-          <Feather name="edit-2" size={18} color="#fff" />
-          <Text style={styles.acaoTxt}>Editar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.btnAcao, { backgroundColor: '#DC3545' }]} onPress={() => { fechar(); onExcluir(); }}>
-          <Feather name="trash-2" size={18} color="#fff" />
-          <Text style={styles.acaoTxt}>Excluir</Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </View>
-  );
-}
+const HEADER_BG = '#1A237E';
 
 export default function GestaoClientes({ navigation }) {
   const { clientes, adicionarCliente, editarCliente, excluirCliente } = useApp();
+  const insets = useSafeAreaInsets();
   const [busca, setBusca] = useState('');
   const [modalVisivel, setModalVisivel] = useState(false);
   const [clienteEditando, setClienteEditando] = useState(null);
@@ -77,72 +32,86 @@ export default function GestaoClientes({ navigation }) {
     setModalVisivel(false);
   };
 
-  const confirmarExclusao = (cliente) => {
-    Alert.alert('Excluir Cliente', `Excluir "${cliente.nome}" permanentemente?`, [
+  const abrirAcoes = (cliente) => {
+    Alert.alert(cliente.nome, 'O que deseja fazer?', [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Excluir', style: 'destructive', onPress: () => excluirCliente(cliente.id) },
+      { text: 'Editar', onPress: () => abrirModalEditar(cliente) },
+      {
+        text: 'Excluir', style: 'destructive',
+        onPress: () => Alert.alert(
+          'Excluir Cliente',
+          `Excluir "${cliente.nome}" permanentemente?`,
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            { text: 'Excluir', style: 'destructive', onPress: () => excluirCliente(cliente.id) },
+          ]
+        ),
+      },
     ]);
   };
 
   const renderItem = ({ item }) => (
-    <SwipeableRow
-      onEditar={() => abrirModalEditar(item)}
-      onExcluir={() => confirmarExclusao(item)}
-    >
-      <View style={styles.card}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarLetra}>{item.nome.charAt(0).toUpperCase()}</Text>
-        </View>
-        <View style={styles.textos}>
-          <Text style={styles.nomeCliente}>{item.nome}</Text>
-          <Text style={styles.docCliente}>{item.documento || 'Sem documento'}</Text>
-          {item.telefone ? <Text style={styles.telCliente}>{item.telefone}</Text> : null}
-        </View>
-        <Ionicons name="chevron-back-outline" size={16} color={CORES.placeholder} />
+    <View style={styles.card}>
+      <View style={styles.avatar}>
+        <Text style={styles.avatarLetra}>{item.nome.charAt(0).toUpperCase()}</Text>
       </View>
-    </SwipeableRow>
+      <View style={styles.textos}>
+        <Text style={styles.nomeCliente} numberOfLines={1}>{item.nome}</Text>
+        <Text style={styles.docCliente}>{item.documento || 'Sem documento'}</Text>
+        {item.telefone ? <Text style={styles.telCliente}>{item.telefone}</Text> : null}
+      </View>
+      <TouchableOpacity
+        style={styles.btnAcoes}
+        onPress={() => abrirAcoes(item)}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      >
+        <Ionicons name="ellipsis-vertical" size={18} color={CORES.placeholder} />
+      </TouchableOpacity>
+    </View>
   );
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.container}>
+    <View style={styles.safe}>
+      {/* Header */}
+      <View style={[styles.headerArea, { paddingTop: insets.top + 12 }]}>
         <View style={styles.searchRow}>
-          <Ionicons name="search-outline" size={20} color={CORES.placeholder} style={styles.searchIcon} />
+          <Ionicons name="search-outline" size={16} color="rgba(255,255,255,0.45)" style={{ marginRight: 8 }} />
           <TextInput
-            style={styles.inputBusca}
+            style={styles.searchInput}
             placeholder="Buscar por nome ou documento..."
-            placeholderTextColor={CORES.placeholder}
+            placeholderTextColor="rgba(255,255,255,0.3)"
             value={busca}
             onChangeText={setBusca}
           />
           {busca.length > 0 && (
-            <TouchableOpacity onPress={() => setBusca('')}>
-              <Ionicons name="close-circle" size={20} color={CORES.placeholder} />
+            <TouchableOpacity onPress={() => setBusca('')} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
+              <Ionicons name="close-circle" size={16} color="rgba(255,255,255,0.45)" />
             </TouchableOpacity>
           )}
         </View>
+      </View>
 
+      {/* Conteúdo */}
+      <View style={styles.contentArea}>
         <View style={styles.countRow}>
           <Text style={styles.countTexto}>
             {clientesFiltrados.length} cliente{clientesFiltrados.length !== 1 ? 's' : ''}
           </Text>
           <TouchableOpacity style={styles.btnNovo} onPress={abrirModalNovo}>
-            <Ionicons name="add" size={18} color={CORES.branco} />
-            <Text style={styles.btnNovoTexto}>NOVO</Text>
+            <Ionicons name="add" size={16} color="#fff" />
+            <Text style={styles.btnNovoTxt}>NOVO CLIENTE</Text>
           </TouchableOpacity>
         </View>
-
-        <Text style={styles.dica}>← Arraste o card para revelar ações →</Text>
 
         <FlatList
           data={clientesFiltrados}
           keyExtractor={item => item.id}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 30 }}
+          contentContainerStyle={{ paddingBottom: 20 + insets.bottom }}
           ListEmptyComponent={
             <View style={styles.vazioContainer}>
-              <Ionicons name="people-outline" size={50} color={CORES.cinzaLinha} />
+              <Ionicons name="people-outline" size={52} color="#CCC" />
               <Text style={styles.vazioTexto}>
                 {busca ? 'Nenhum resultado.' : 'Nenhum cliente cadastrado ainda.'}
               </Text>
@@ -157,45 +126,60 @@ export default function GestaoClientes({ navigation }) {
         onSalvar={handleSalvarModal}
         clienteParaEditar={clienteEditando}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: CORES.fundo },
-  container: { flex: 1, padding: 20 },
-  searchRow: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: CORES.branco,
-    borderRadius: RAIO.input, paddingHorizontal: 12, borderWidth: 1,
-    borderColor: CORES.divisor, marginBottom: 16,
+  safe: { flex: 1, backgroundColor: '#F0F2F8' },
+
+  headerArea: {
+    backgroundColor: HEADER_BG,
+    paddingHorizontal: 20, paddingBottom: 18,
   },
-  searchIcon: { marginRight: 8 },
-  inputBusca: { flex: 1, height: 48, fontSize: 15, color: CORES.textoPrincipal },
-  countRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
+  searchRow: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 12, paddingHorizontal: 14, height: 44,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
+  },
+  searchInput: { flex: 1, fontSize: 14, color: '#fff' },
+
+  contentArea: {
+    flex: 1, backgroundColor: '#F0F2F8',
+    borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    paddingHorizontal: 20, paddingTop: 20,
+    marginTop: -10,
+  },
+
+  countRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   countTexto: { fontSize: 13, color: CORES.textoSecundario, fontWeight: '600' },
   btnNovo: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: CORES.secundaria,
-    paddingHorizontal: 14, paddingVertical: 8, borderRadius: RAIO.botao,
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: HEADER_BG, paddingHorizontal: 14, paddingVertical: 9,
+    borderRadius: 10, gap: 6,
   },
-  btnNovoTexto: { color: CORES.branco, fontWeight: 'bold', fontSize: 13, marginLeft: 4 },
-  dica: { fontSize: 11, color: CORES.placeholder, textAlign: 'center', marginBottom: 10, fontStyle: 'italic' },
-
-  btnAcao: { width: 60, justifyContent: 'center', alignItems: 'center' },
-  acaoTxt: { color: '#fff', fontSize: 11, fontWeight: 'bold', marginTop: 4 },
+  btnNovoTxt: { color: '#fff', fontWeight: '700', fontSize: 12 },
 
   card: {
-    backgroundColor: CORES.branco, padding: 14, flexDirection: 'row',
-    alignItems: 'center', borderBottomWidth: 1, borderColor: CORES.divisor,
+    backgroundColor: '#fff', borderRadius: 16, padding: 14,
+    flexDirection: 'row', alignItems: 'center', marginBottom: 10,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
   avatar: {
-    width: 44, height: 44, borderRadius: 22, backgroundColor: CORES.lightPurple,
+    width: 44, height: 44, borderRadius: 22, backgroundColor: '#EEF0FF',
     justifyContent: 'center', alignItems: 'center', marginRight: 12,
   },
-  avatarLetra: { fontSize: 18, fontWeight: 'bold', color: CORES.secundaria },
+  avatarLetra: { fontSize: 18, fontWeight: '800', color: HEADER_BG },
   textos: { flex: 1 },
-  nomeCliente: { fontSize: 15, fontWeight: '700', color: CORES.textoPrincipal },
+  nomeCliente: { fontSize: 15, fontWeight: '700', color: HEADER_BG },
   docCliente: { fontSize: 12, color: CORES.textoSecundario, marginTop: 2 },
   telCliente: { fontSize: 12, color: CORES.placeholder, marginTop: 1 },
+  btnAcoes: {
+    width: 32, height: 32, borderRadius: 8, backgroundColor: '#F5F5F5',
+    justifyContent: 'center', alignItems: 'center', marginLeft: 8,
+  },
+
   vazioContainer: { alignItems: 'center', marginTop: 80 },
   vazioTexto: { marginTop: 16, color: CORES.textoSecundario, fontStyle: 'italic', textAlign: 'center' },
 });

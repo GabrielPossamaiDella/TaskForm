@@ -104,30 +104,16 @@ export default function App() {
             })} 
           />
 
-          <Stack.Screen 
-            name="NovaOSEquipamento" 
-            component={NovaOSEquipamento} 
-            options={({ navigation }) => ({ 
-              title: 'EQUIPAMENTO',
-              headerLeft: () => (
-                <TouchableOpacity onPress={() => navigation.navigate('Home', { screen: 'Painel' })} style={{ marginLeft: 5 }}>
-                  <Ionicons name="home-outline" size={24} color={CORES.branco} />
-                </TouchableOpacity>
-              )
-            })} 
+          <Stack.Screen
+            name="NovaOSEquipamento"
+            component={NovaOSEquipamento}
+            options={{ headerShown: false }}
           />
 
-          <Stack.Screen 
-            name="NovaOSServicos" 
-            component={NovaOSServicos} 
-            options={({ navigation }) => ({ 
-              title: 'SERVIÇOS',
-              headerLeft: () => (
-                <TouchableOpacity onPress={() => navigation.navigate('Home', { screen: 'Painel' })} style={{ marginLeft: 5 }}>
-                  <Ionicons name="home-outline" size={24} color={CORES.branco} />
-                </TouchableOpacity>
-              )
-            })} 
+          <Stack.Screen
+            name="NovaOSServicos"
+            component={NovaOSServicos}
+            options={{ headerShown: false }}
           />
 
           <Stack.Screen 
@@ -146,14 +132,7 @@ export default function App() {
           <Stack.Screen
             name="DetalhesOS"
             component={DetalhesOS}
-            options={({ navigation }) => ({
-              title: 'DETALHES DA OS',
-              headerLeft: () => (
-                <TouchableOpacity onPress={() => navigation.navigate('Home', { screen: 'Painel' })} style={{ marginLeft: 5 }}>
-                  <Ionicons name="home-outline" size={24} color={CORES.branco} />
-                </TouchableOpacity>
-              )
-            })}
+            options={{ headerShown: false }}
           />
 
           <Stack.Screen
