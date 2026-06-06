@@ -11,7 +11,7 @@ export const AppProvider = ({ children }) => {
   
   // Estado inicial limpo para facilitar o reset
   const osInicial = {
-    cliente: null, maquina: '', defeito: '', servico: '', tempo: '', valorMaoDeObra: 120, pecas: [], total: 0
+    cliente: null, maquina: '', defeito: '', servico: '', tempo: '', valorMaoDeObra: '', pecas: [], total: 0
   };
   const [osAtual, setOsAtual] = useState(osInicial);
 

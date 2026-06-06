@@ -44,7 +44,7 @@ export default function NovaOSResumo({ navigation }) {
       </View>
 
       <View style={styles.contentArea}>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scroll, { paddingBottom: 30 + insets.bottom }]}> 
 
           {/* Card Cliente */}
           <View style={styles.card}>

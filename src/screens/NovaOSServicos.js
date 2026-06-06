@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   ScrollView, KeyboardAvoidingView, Platform,
@@ -16,6 +16,11 @@ export default function NovaOSServicos({ navigation }) {
   const insets = useSafeAreaInsets();
   const [nomePeca, setNomePeca] = useState('');
   const [valorPeca, setValorPeca] = useState('');
+
+  useEffect(() => {
+    setNomePeca('');
+    setValorPeca('');
+  }, [osAtual.id]);
 
   const handleAdicionarPeca = () => {
     if (!nomePeca.trim() || !valorPeca.trim()) return;
@@ -155,7 +160,7 @@ export default function NovaOSServicos({ navigation }) {
           </ScrollView>
         </View>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, { paddingBottom: 20 + insets.bottom }]}> 
           <TouchableOpacity style={styles.btnVoltar} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={16} color={CORES.textoSecundario} />
             <Text style={styles.btnVoltarTxt}>VOLTAR</Text>

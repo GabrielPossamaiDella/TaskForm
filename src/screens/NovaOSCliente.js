@@ -126,7 +126,7 @@ export default function NovaOSCliente({ navigation }) {
       </View>
 
       {/* Footer */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: 20}]}> 
         <TouchableOpacity style={styles.btnCancelar} onPress={() => navigation.goBack()}>
           <Text style={styles.btnCancelarTxt}>CANCELAR</Text>
         </TouchableOpacity>

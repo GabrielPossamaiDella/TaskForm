@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   ScrollView, KeyboardAvoidingView, Platform, Alert,
@@ -21,6 +21,11 @@ export default function NovaOSEquipamento({ navigation }) {
   const insets = useSafeAreaInsets();
   const [maquina, setMaquina] = useState(osAtual.maquina || '');
   const [defeito, setDefeito] = useState(osAtual.defeito || '');
+
+  useEffect(() => {
+    setMaquina(osAtual.maquina || '');
+    setDefeito(osAtual.defeito || '');
+  }, [osAtual.maquina, osAtual.defeito]);
 
   const selecionarTag = (tag) => setDefeito(prev => prev ? `${prev}, ${tag}` : tag);
 
@@ -92,7 +97,7 @@ export default function NovaOSEquipamento({ navigation }) {
           </ScrollView>
         </View>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, { paddingBottom: 20 + insets.bottom }]}> 
           <TouchableOpacity style={styles.btnVoltar} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={16} color={CORES.textoSecundario} />
             <Text style={styles.btnVoltarTxt}>VOLTAR</Text>
