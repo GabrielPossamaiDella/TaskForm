@@ -1,35 +1,61 @@
-Alunos:
-Jorge Luiz Madeira Pires, 
-Davi Duarte Dorschaidt, 
-Gabriel Patricio Possamai Della, 
-Paulo Henrique de Souza Cândido, 
-Lucas Rodrigues Vigarani
+# TaskForm — Gestão de Ordens de Serviço
 
-
-
-Beneficiário 01:
-Nome ou empresa: Tecflex
-CPF/CNPJ: 13.786.896/0001-17
-Endereço: Av. Santos Dumont, 565 - Bairro Pinheirinho, Criciúma - SC
-Relato do Problema (o que o cliente relatou): A empresa atua na manutenção de máquinas de costura e equipamentos para o polo têxtil da região e relatou que o seu maior gargalo logístico e administrativo é a gestão de atendimentos em campo feita inteiramente no papel. Como os técnicos trabalham dentro de galpões industriais que frequentemente não possuem sinal de internet, as Ordens de Serviço (OS) são preenchidas à mão. Segundo o cliente, isso causa diversos problemas diários: letras ilegíveis, perda de anotações de peças utilizadas, desgaste físico dos documentos, retrabalho para redigitar tudo no sistema do escritório e, consequentemente, atrasos no faturamento e na cobrança dos serviços prestados.
+> App mobile **offline-first** para técnicos de campo da Tecflex. Criado, aberto, fechado e sincronizado sem depender de sinal — do galpão ao faturamento.
 
 ---
 
-# TaskForm — App de Ordens de Serviço
+## Contexto
 
-App mobile (React Native + Expo) **offline-first** para gestão de Ordens de Serviço da Tecflex.
-Backend em nuvem (Supabase): autenticação com token, persistência de clientes/OS e sincronização.
+A **Tecflex** (CNPJ 13.786.896/0001-17), localizada na Av. Santos Dumont, 565 — Pinheirinho, Criciúma/SC, atua na manutenção de máquinas de costura e equipamentos para o polo têxtil regional.
+
+O principal gargalo relatado pela empresa era a **gestão de atendimentos em campo inteiramente no papel**: técnicos trabalham dentro de galpões industriais que frequentemente não têm sinal de internet, então as Ordens de Serviço eram preenchidas à mão. O resultado: letras ilegíveis, perda de registros de peças utilizadas, documentos danificados, retrabalho de redigitação no escritório e atrasos no faturamento.
+
+O **TaskForm** resolve esse problema do começo ao fim.
+
+---
+
+## Equipe
+
+Projeto desenvolvido por alunos do curso de Análise e Desenvolvimento de Sistemas:
+
+| Aluno |
+|---|
+| Davi Duarte Dorschaidt |
+| Gabriel Patricio Possamai Della |
+| Jorge Luiz Madeira Pires |
+| Lucas Rodrigues Vigarani |
+| Paulo Henrique de Souza Cândido |
+
+---
+
+## Funcionalidades
+
+- **Criação de OS guiada** — fluxo passo a passo: cliente → equipamento → serviços/peças → resumo → finalizar
+- **Offline-first real** — cria, edita e consulta OS sem nenhuma conexão; fila de sincronização automática
+- **Indicador de status** — cada OS exibe "Na nuvem" ou "Só no celular" em tempo real
+- **Sincronização manual** — botão Sincronizar envia tudo que está pendente assim que a rede voltar
+- **PDF profissional** — gera e compartilha a OS em PDF direto do celular
+- **Geolocalização e deslocamento** — calcula KM rodado a partir do local base configurado
+- **Gestão de clientes** — CRUD completo integrado ao backend
+- **Autenticação com token** — login validado no Supabase com RLS por usuário
+
+---
 
 ## Tecnologias
-- React Native + Expo (SDK 54)
-- Supabase (PostgreSQL + Auth via RPC + RLS)
-- AsyncStorage (cache offline) com fila de sincronização
-- expo-location (geolocalização / cálculo de deslocamento)
-- expo-print (geração de PDF da OS)
+
+| Camada | Tecnologia |
+|---|---|
+| Mobile | React Native + Expo SDK 54 |
+| Backend / Auth | Supabase (PostgreSQL + Auth via RPC + RLS) |
+| Cache offline | AsyncStorage com fila de sincronização |
+| Geolocalização | expo-location |
+| Geração de PDF | expo-print |
+
+---
 
 ## Como executar
 
-Pré-requisitos: Node.js LTS e o app **Expo Go** no celular.
+**Pré-requisitos:** Node.js LTS instalado no computador e o app **Expo Go** no celular.
 
 ```bash
 git clone https://github.com/GabrielPossamaiDella/TaskForm.git
@@ -38,21 +64,33 @@ npm install
 npx expo start
 ```
 
-Abra o **Expo Go** no celular e escaneie o QR Code do terminal.
-- Se o celular e o computador estiverem na **mesma rede Wi-Fi**, o QR padrão funciona.
-- Em rede restrita (ex: Wi-Fi da faculdade), use o modo túnel: `npx expo start --tunnel`.
+Abra o **Expo Go** no celular e escaneie o QR Code exibido no terminal.
 
-O backend é em nuvem, então **não precisa configurar nada** — o app já conecta ao Supabase.
+> **Mesma rede Wi-Fi** — o QR padrão funciona normalmente.
+> **Rede restrita** (ex: Wi-Fi da faculdade) — use o modo túnel:
+> ```bash
+> npx expo start --tunnel
+> ```
 
-### Acesso de demonstração
-- E-mail: `gabriel@tecflex.com.br`
-- Senha: `admin123`
+O backend é em nuvem. Não é necessário configurar nada — o app já conecta ao Supabase automaticamente.
+
+---
+
+## Acesso de demonstração
+
+| Campo | Valor |
+|---|---|
+| E-mail | `gabriel@tecflex.com.br` |
+| Senha | `admin123` |
+
+---
 
 ## Roteiro de demonstração
-1. **Login** com o acesso acima (validação real no backend, com token).
-2. **Painel**: lista de OS sincronizadas com a nuvem (indicador "Na nuvem"/"Só no celular").
-3. **Nova OS**: cliente → equipamento → serviços/peças → resumo → finalizar.
-4. **Offline-first**: ative o modo avião, crie uma OS (fica "Só no celular"), volte online e toque em **Sincronizar** (vira "Na nuvem").
-5. **PDF**: abra uma OS em Detalhes e compartilhe o PDF profissional.
-6. **Configurações** (Perfil): definir local base e regras de **cálculo de deslocamento (KM rodado)**.
-7. **Gestão de Clientes**: CRUD completo.
+
+1. **Login** — autenticação real no backend com geração de token.
+2. **Painel** — lista de OS com indicador "Na nuvem" / "Só no celular".
+3. **Nova OS** — percorra o fluxo completo: cliente → equipamento → serviços/peças → resumo → finalizar.
+4. **Offline-first** — ative o modo avião, crie uma OS (aparece como "Só no celular"), volte online e toque em **Sincronizar** (passa a "Na nuvem").
+5. **PDF** — abra uma OS em Detalhes e compartilhe o PDF gerado.
+6. **Perfil / Configurações** — defina o local base e as regras de cálculo de deslocamento por KM rodado.
+7. **Clientes** — demonstre o CRUD completo: cadastro, edição e exclusão.
