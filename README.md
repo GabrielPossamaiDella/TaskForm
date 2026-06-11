@@ -22,7 +22,7 @@ Projeto desenvolvido por alunos do curso de Análise e Desenvolvimento de Sistem
 |---|
 | Davi Duarte Dorschaidt |
 | Gabriel Patricio Possamai Della |
-| Jorge Luiz Madeira Pires |
+| Jorge Luiz M. Pires |
 | Lucas Rodrigues Vigarani |
 | Paulo Henrique de Souza Cândido |
 
