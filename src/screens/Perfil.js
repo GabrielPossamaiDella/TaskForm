@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
@@ -28,7 +28,7 @@ export default function Perfil({ navigation }) {
         text: 'Sair', style: 'destructive',
         onPress: async () => {
           try {
-            await AsyncStorage.removeItem('@user_logado');
+            await AsyncStorage.multiRemove(['@token_acesso', '@usuario', '@user_logado']);
             navigation.replace('Login');
           } catch {
             Alert.alert('Erro', 'Não foi possível encerrar a sessão.');
@@ -138,6 +138,14 @@ export default function Perfil({ navigation }) {
                 <Ionicons name="people-outline" size={16} color={HEADER_BG} />
               </View>
               <Text style={styles.itemMenuTxt}>Gerenciar Clientes</Text>
+              <Feather name="chevron-right" size={16} color={CORES.placeholder} />
+            </TouchableOpacity>
+            <View style={styles.divisor} />
+            <TouchableOpacity style={styles.itemMenu} onPress={() => navigation.navigate('Configuracoes')}>
+              <View style={styles.itemMenuIcone}>
+                <Ionicons name="settings-outline" size={16} color={HEADER_BG} />
+              </View>
+              <Text style={styles.itemMenuTxt}>Configurações (deslocamento / KM)</Text>
               <Feather name="chevron-right" size={16} color={CORES.placeholder} />
             </TouchableOpacity>
           </View>

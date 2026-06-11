@@ -1,32 +1,53 @@
 // src/screens/Login.js
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView, Image, ActivityIndicator, Alert } from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CORES, RAIO } from '../styles/temas';
+import { supabase } from '../services/supabase';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('gabriel@tecflex.com.br');
   const [senha, setSenha] = useState('admin123');
+  const [carregando, setCarregando] = useState(false);
 
   useEffect(() => {
     verificarLogin();
   }, []);
 
   const verificarLogin = async () => {
-    const logado = await AsyncStorage.getItem('@user_logado');
-    if (logado === 'true') {
+    // Mantem a sessao se ja existe um token de acesso salvo
+    const token = await AsyncStorage.getItem('@token_acesso');
+    if (token) {
       navigation.replace('Home');
     }
   };
 
   const handleLogin = async () => {
-    if (email.toLowerCase() === 'gabriel@tecflex.com.br' && senha === 'admin123') {
-      await AsyncStorage.setItem('@user_logado', 'true');
+    if (!email.trim() || !senha) {
+      Alert.alert('Atenção', 'Informe e-mail e senha.');
+      return;
+    }
+    setCarregando(true);
+    try {
+      // Login real contra o backend: valida a senha e devolve um token de acesso
+      const { data, error } = await supabase.rpc('fazer_login', {
+        p_email: email.trim(),
+        p_senha: senha,
+      });
+      const usuario = Array.isArray(data) ? data[0] : data;
+      if (error || !usuario || !usuario.token) {
+        Alert.alert('Falha no login', 'E-mail ou senha incorretos.');
+        return;
+      }
+      await AsyncStorage.setItem('@token_acesso', usuario.token);
+      await AsyncStorage.setItem('@usuario', JSON.stringify(usuario));
       navigation.replace('Home');
-    } else {
-      alert('Credenciais incorretas.');
+    } catch (e) {
+      Alert.alert('Erro', 'Não foi possível conectar. Verifique sua internet.');
+    } finally {
+      setCarregando(false);
     }
   };
 
@@ -76,8 +97,10 @@ export default function Login({ navigation }) {
               />
             </View>
 
-            <TouchableOpacity style={styles.botaoEntrar} onPress={handleLogin}>
-              <Text style={styles.textoBotao}>Acessar Aplicativo</Text>
+            <TouchableOpacity style={[styles.botaoEntrar, carregando && { opacity: 0.7 }]} onPress={handleLogin} disabled={carregando}>
+              {carregando
+                ? <ActivityIndicator color={CORES.branco} />
+                : <Text style={styles.textoBotao}>Acessar Aplicativo</Text>}
             </TouchableOpacity>
 
           </View>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
   Alert, ActivityIndicator,
@@ -8,17 +8,40 @@ import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
 import StepProgress from '../components/StepProgress';
+import { capturarLocalizacao, calcularDeslocamento } from '../utils/geo';
 
 const HEADER_BG = '#1A237E';
 
 export default function NovaOSResumo({ navigation }) {
-  const { osAtual, finalizarOS } = useApp();
+  const { osAtual, finalizarOS, atualizarOS, config } = useApp();
   const insets = useSafeAreaInsets();
   const [salvando, setSalvando] = useState(false);
+  const [buscandoLocal, setBuscandoLocal] = useState(false);
+
+  // Ao abrir o resumo, captura a localizacao e calcula o deslocamento (se houver base configurada)
+  useEffect(() => {
+    let ativo = true;
+    (async () => {
+      if (osAtual.latitude != null && osAtual.deslocamentoValor != null) return; // ja calculado
+      if (config?.baseLatitude == null) return; // sem base definida nas configuracoes
+      setBuscandoLocal(true);
+      const geo = await capturarLocalizacao();
+      if (ativo && geo) {
+        const d = calcularDeslocamento(config, geo.latitude, geo.longitude);
+        atualizarOS({
+          latitude: geo.latitude, longitude: geo.longitude,
+          deslocamentoKm: d.kmCobrado, deslocamentoValor: d.valor,
+        });
+      }
+      if (ativo) setBuscandoLocal(false);
+    })();
+    return () => { ativo = false; };
+  }, []);
 
   const totalPecas = osAtual.pecas.reduce((a, p) => a + parseFloat(p.valor || 0), 0);
   const maoDeObra = parseFloat(osAtual.valorMaoDeObra || 0);
-  const totalGeral = maoDeObra + totalPecas;
+  const deslocamento = parseFloat(osAtual.deslocamentoValor || 0);
+  const totalGeral = maoDeObra + totalPecas + deslocamento;
 
   const handleFinalizar = async () => {
     if (!osAtual.cliente) {
@@ -101,6 +124,18 @@ export default function NovaOSResumo({ navigation }) {
               <View style={styles.finRow}>
                 <Text style={styles.finLabel}>Peças ({osAtual.pecas.length})</Text>
                 <Text style={styles.finValor}>R$ {totalPecas.toFixed(2)}</Text>
+              </View>
+            )}
+            {buscandoLocal && (
+              <View style={styles.finRow}>
+                <Text style={styles.finLabel}>Deslocamento</Text>
+                <Text style={styles.finValor}>calculando...</Text>
+              </View>
+            )}
+            {deslocamento > 0 && (
+              <View style={styles.finRow}>
+                <Text style={styles.finLabel}>Deslocamento ({osAtual.deslocamentoKm} km)</Text>
+                <Text style={styles.finValor}>R$ {deslocamento.toFixed(2)}</Text>
               </View>
             )}
             <View style={styles.finDivisor} />

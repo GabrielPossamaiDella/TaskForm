@@ -74,6 +74,18 @@ export default function GestaoClientes({ navigation }) {
     <View style={styles.safe}>
       {/* Header */}
       <View style={[styles.headerArea, { paddingTop: insets.top + 12 }]}>
+        <View style={styles.titleRow}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backBtn}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Ionicons name="arrow-back" size={22} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>CLIENTES</Text>
+          <View style={styles.backBtn} />
+        </View>
+
         <View style={styles.searchRow}>
           <Ionicons name="search-outline" size={16} color="rgba(255,255,255,0.45)" style={{ marginRight: 8 }} />
           <TextInput
@@ -137,6 +149,12 @@ const styles = StyleSheet.create({
     backgroundColor: HEADER_BG,
     paddingHorizontal: 20, paddingBottom: 18,
   },
+  titleRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  backBtn: { width: 30, alignItems: 'flex-start' },
+  headerTitle: { fontSize: 16, fontWeight: '800', color: '#fff', letterSpacing: 1 },
   searchRow: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.08)',

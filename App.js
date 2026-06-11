@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -9,13 +9,13 @@ import { Ionicons } from '@expo/vector-icons';
 import Login from './src/screens/Login';
 import Home from './src/screens/Home';
 import Perfil from './src/screens/Perfil';
-import NovoCliente from './src/screens/NovoCliente';
 import NovaOSCliente from './src/screens/NovaOSCliente';
 import NovaOSEquipamento from './src/screens/NovaOSEquipamento';
 import NovaOSServicos from './src/screens/NovaOSServicos';
 import NovaOSResumo from './src/screens/NovaOSResumo';
 import DetalhesOS from './src/screens/DetalhesOS';
 import GestaoClientes from './src/screens/GestaoClientes';
+import Configuracoes from './src/screens/Configuracoes';
 
 import { CORES } from './src/styles/temas';
 import { AppProvider } from './src/context/AppContext';
@@ -91,19 +91,6 @@ export default function App() {
             options={{ headerShown: false }}
           />
 
-          <Stack.Screen 
-            name="NovoCliente" 
-            component={NovoCliente} 
-            options={({ navigation }) => ({ 
-              title: 'CADASTRAR CLIENTE',
-              headerLeft: () => (
-                <TouchableOpacity onPress={() => navigation.navigate('Home', { screen: 'Painel' })} style={{ marginLeft: 5 }}>
-                  <Ionicons name="home-outline" size={24} color={CORES.branco} />
-                </TouchableOpacity>
-              )
-            })} 
-          />
-
           <Stack.Screen
             name="NovaOSEquipamento"
             component={NovaOSEquipamento}
@@ -116,17 +103,10 @@ export default function App() {
             options={{ headerShown: false }}
           />
 
-          <Stack.Screen 
-            name="NovaOSResumo" 
-            component={NovaOSResumo} 
-            options={({ navigation }) => ({ 
-              title: 'RESUMO FINAL',
-              headerLeft: () => (
-                <TouchableOpacity onPress={() => navigation.navigate('Home', { screen: 'Painel' })} style={{ marginLeft: 5 }}>
-                  <Ionicons name="home-outline" size={24} color={CORES.branco} />
-                </TouchableOpacity>
-              )
-            })} 
+          <Stack.Screen
+            name="NovaOSResumo"
+            component={NovaOSResumo}
+            options={{ headerShown: false }}
           />
 
           <Stack.Screen
@@ -138,7 +118,13 @@ export default function App() {
           <Stack.Screen
             name="GestaoClientes"
             component={GestaoClientes}
-            options={{ title: 'CLIENTES' }}
+            options={{ headerShown: false }}
+          />
+
+          <Stack.Screen
+            name="Configuracoes"
+            component={Configuracoes}
+            options={{ headerShown: false }}
           />
 
         </Stack.Navigator>

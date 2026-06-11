@@ -6,8 +6,12 @@ node_modules/
 # Expo
 .expo/
 dist/
+dist-check/
 web-build/
 expo-env.d.ts
+
+# PDF preview gerado (dev)
+scripts/preview-os.*
 
 # Native
 .kotlin/

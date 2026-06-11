@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, Image, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, Image, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
@@ -7,11 +7,28 @@ import { CORES } from '../styles/temas';
 const HEADER_BG = '#1A237E';
 const ACCENT = '#5A54FF';
 
+const STATUS_CONFIG = {
+  'Aberta':        { bg: '#E3F2FD', text: '#1565C0' },
+  'Em andamento':  { bg: '#FFF3E0', text: '#E65100' },
+  'Concluída':     { bg: '#E8F5E9', text: '#2E7D32' },
+};
+
+const getStatusConfig = (status) => STATUS_CONFIG[status] || STATUS_CONFIG['Concluída'];
+
 export default function Home({ navigation }) {
-  const { listaOS } = useApp();
+  const { listaOS, sincronizar, sincronizando, online } = useApp();
   const [searchQuery, setSearchQuery] = useState('');
 
-  const todasSincronizadas = listaOS.length > 0 && listaOS.every(os => os.sincronizada);
+  const handleSincronizar = async () => {
+    const ok = await sincronizar();
+    Alert.alert(
+      ok ? 'Sincronizado' : 'Sem conexão',
+      ok
+        ? 'Seus dados foram sincronizados com a nuvem.'
+        : 'Não foi possível conectar agora. Seus dados estão salvos no aparelho e subirão automaticamente quando houver internet.',
+      [{ text: 'OK' }]
+    );
+  };
 
   const listaFiltrada = searchQuery.trim()
     ? listaOS.filter(os => {
@@ -30,9 +47,22 @@ export default function Home({ navigation }) {
       activeOpacity={0.85}
     >
       <View style={styles.cardHeaderRow}>
-        <Text style={styles.osNumber}>{item.os_number || '#XXXXXX'}</Text>
-        <View style={styles.tagStatus}>
-          <Text style={styles.textoStatus}>{item.status || 'Concluída'}</Text>
+        <View style={styles.osNumberRow}>
+          <Text style={styles.osNumber}>{item.os_number || '#XXXXXX'}</Text>
+          <Ionicons
+            name={item.sincronizada ? 'cloud-done' : 'cloud-offline'}
+            size={13}
+            color={item.sincronizada ? '#2E7D32' : '#E65100'}
+            style={{ marginLeft: 6 }}
+          />
+          <Text style={[styles.syncMini, { color: item.sincronizada ? '#2E7D32' : '#E65100' }]}>
+            {item.sincronizada ? 'Na nuvem' : 'Só no celular'}
+          </Text>
+        </View>
+        <View style={[styles.tagStatus, { backgroundColor: getStatusConfig(item.status).bg }]}>
+          <Text style={[styles.textoStatus, { color: getStatusConfig(item.status).text }]}>
+            {item.status || 'Aberta'}
+          </Text>
         </View>
       </View>
 
@@ -109,17 +139,22 @@ export default function Home({ navigation }) {
             <Text style={styles.valorTopCard}>{listaOS.length}</Text>
           </View>
           <TouchableOpacity
-            style={[styles.syncCard, todasSincronizadas && styles.syncCardDisabled]}
-            disabled={todasSincronizadas}
+            style={[styles.syncCard, !online && styles.syncCardOffline]}
+            disabled={sincronizando}
             activeOpacity={0.8}
+            onPress={handleSincronizar}
           >
-            <Ionicons
-              name={todasSincronizadas ? 'cloud-done-outline' : 'cloud-upload-outline'}
-              size={26}
-              color="#fff"
-            />
+            {sincronizando ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Ionicons
+                name={online ? 'cloud-done-outline' : 'cloud-offline-outline'}
+                size={26}
+                color="#fff"
+              />
+            )}
             <Text style={styles.textoSyncCard}>
-              {todasSincronizadas ? 'SINCRONIZADO' : 'SINCRONIZAR'}
+              {sincronizando ? 'SINCRONIZANDO...' : (online ? 'SINCRONIZAR' : 'OFFLINE')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -194,6 +229,7 @@ const styles = StyleSheet.create({
     shadowColor: CORES.secundaria, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 10, elevation: 4,
   },
   syncCardDisabled: { opacity: 0.5, shadowOpacity: 0 },
+  syncCardOffline: { backgroundColor: '#9AA0B5', shadowOpacity: 0 },
   textoSyncCard: { color: '#fff', fontSize: 10, fontWeight: '700', marginTop: 6, letterSpacing: 0.5 },
 
   // OS CARDS
@@ -202,7 +238,9 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
   cardHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  osNumberRow: { flexDirection: 'row', alignItems: 'center' },
   osNumber: { fontSize: 11, color: CORES.placeholder, fontWeight: '600' },
+  syncMini: { fontSize: 9, fontWeight: '700', marginLeft: 4, letterSpacing: 0.2 },
   tagStatus: { backgroundColor: '#E8F5E9', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
   textoStatus: { color: '#2E7D32', fontSize: 10, fontWeight: '700' },
   osInfoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
