@@ -9,9 +9,10 @@ import { Ionicons, Feather } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
 import { LOGO_BASE64 } from '../assets/logoBase64';
+import { formatarMoeda } from '../utils/format';
 
-const HEADER_BG = '#1A237E';
-const ACCENT = '#5A54FF';
+const HEADER_BG = '#2563EB';
+const ACCENT = '#1D4ED8';
 
 const STATUS_CONFIG = {
   'Aberta':        { bg: '#E3F2FD', text: '#1565C0' },
@@ -52,7 +53,7 @@ export default function DetalhesOS({ route, navigation }) {
         ? pecas.map((p) => `
           <tr>
             <td>${p.nome}</td>
-            <td style="text-align:right;">R$ ${parseFloat(p.valor).toFixed(2)}</td>
+            <td style="text-align:right;">R$ ${parseFloat(p.valor||0).toFixed(2).replace('.',',')}</td>
           </tr>`).join('')
         : `<tr><td colspan="2" style="padding:14px;text-align:center;color:#777;font-style:italic;">Nenhuma peça adicionada</td></tr>`;
 
@@ -92,7 +93,7 @@ export default function DetalhesOS({ route, navigation }) {
     .page { width:100%; background:#fff; }
 
     /* HEADER */
-    .header { background:linear-gradient(135deg,#1A237E 0%,#283593 100%); padding:16px 24px; color:#fff; border-bottom:3px solid #5A54FF; }
+    .header { background:linear-gradient(135deg,#2563EB 0%,#1D4ED8 100%); padding:16px 24px; color:#fff; border-bottom:3px solid #93C5FD; }
     .header-top { display:flex; justify-content:space-between; align-items:center; }
     .brand-logo { height:42px; object-fit:contain; display:block; max-width:200px; background:#fff; border-radius:8px; padding:5px 8px; }
     .os-badge { background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:7px 16px; text-align:right; }
@@ -110,7 +111,7 @@ export default function DetalhesOS({ route, navigation }) {
 
     /* SECTION */
     .section { margin-bottom:14px; }
-    .section-title { font-size:10px; font-weight:800; color:#283593; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; padding-bottom:5px; border-bottom:2px solid #E6E8F0; }
+    .section-title { font-size:10px; font-weight:800; color:#1D4ED8; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; padding-bottom:5px; border-bottom:2px solid #E6E8F0; }
 
     /* INFO GRID */
     .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
@@ -120,12 +121,12 @@ export default function DetalhesOS({ route, navigation }) {
 
     /* TABLE */
     table { width:100%; border-collapse:collapse; }
-    thead tr { background:#1A237E; color:#fff; }
+    thead tr { background:#2563EB; color:#fff; }
     thead th { padding:7px 12px; font-size:10px; text-align:left; font-weight:600; }
     thead th:last-child { text-align:right; }
     tbody td { padding:6px 12px; border-bottom:1px solid #EEEEEE; font-size:11px; color:#111; }
     tbody tr:nth-child(even) td { background:#F7F7F7; }
-    tbody td:last-child { text-align:right; font-weight:700; color:#1A237E; }
+    tbody td:last-child { text-align:right; font-weight:700; color:#2563EB; }
     .empty-td { padding:10px; text-align:center; color:#777; font-style:italic; }
 
     /* TOTALS */
@@ -133,7 +134,7 @@ export default function DetalhesOS({ route, navigation }) {
     .total-row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; }
     .total-row label { font-size:11px; color:#666; font-weight:600; }
     .total-row span { font-size:11px; font-weight:700; color:#1A1A1A; }
-    .total-main { display:flex; justify-content:space-between; align-items:center; background:linear-gradient(135deg,#1A237E 0%,#283593 100%); color:#fff; border-radius:10px; padding:12px 20px; margin-top:10px; box-shadow:0 4px 10px rgba(26,35,126,0.25); }
+    .total-main { display:flex; justify-content:space-between; align-items:center; background:linear-gradient(135deg,#2563EB 0%,#1D4ED8 100%); color:#fff; border-radius:10px; padding:12px 20px; margin-top:10px; box-shadow:0 4px 10px rgba(26,35,126,0.25); }
     .total-main label { font-size:13px; font-weight:800; color:#fff; letter-spacing:0.8px; }
     .total-main span { font-size:22px; font-weight:800; color:#fff; }
 
@@ -203,11 +204,11 @@ export default function DetalhesOS({ route, navigation }) {
     </div>
 
     <div class="totals">
-      <div class="total-row"><label>Mão de Obra</label><span>R$ ${maoDeObra.toFixed(2)}</span></div>
-      <div class="total-row"><label>Peças (${pecas.length} ${pecas.length === 1 ? 'item' : 'itens'})</label><span>R$ ${totalPecas.toFixed(2)}</span></div>
-      ${parseFloat(os.deslocamentoValor || 0) > 0 ? `<div class="total-row"><label>Deslocamento (${os.deslocamentoKm} km)</label><span>R$ ${parseFloat(os.deslocamentoValor).toFixed(2)}</span></div>` : ''}
+      <div class="total-row"><label>Mão de Obra</label><span>R$ ${maoDeObra.toFixed(2).replace('.',',')}</span></div>
+      <div class="total-row"><label>Peças (${pecas.length} ${pecas.length === 1 ? 'item' : 'itens'})</label><span>R$ ${totalPecas.toFixed(2).replace('.',',')}</span></div>
+      ${parseFloat(os.deslocamentoValor || 0) > 0 ? `<div class="total-row"><label>Deslocamento (${os.deslocamentoKm} km)</label><span>R$ ${parseFloat(os.deslocamentoValor).toFixed(2).replace('.',',')}</span></div>` : ''}
     </div>
-    <div class="total-main"><label>TOTAL GERAL</label><span>R$ ${parseFloat(os.total).toFixed(2)}</span></div>
+    <div class="total-main"><label>TOTAL GERAL</label><span>R$ ${parseFloat(os.total).toFixed(2).replace('.',',')}</span></div>
 
     <div class="assinatura">
       <div class="assin-box">
@@ -226,7 +227,7 @@ export default function DetalhesOS({ route, navigation }) {
 </body>
 </html>`;
 
-      const { uri } = await Print.printToFileAsync({ html: htmlContent, base64: false });
+      const { uri } = await Print.printToFileAsync({ html: htmlContent, base64: false, width: 794, height: 1123 });
 
       // Nome de arquivo amigavel: OS-<numero>-<cliente>.pdf
       const semAcento = (s) => (s || '')
@@ -408,7 +409,7 @@ export default function DetalhesOS({ route, navigation }) {
                 style={[styles.pecaRow, i === os.pecas.length - 1 && { borderBottomWidth: 0 }]}
               >
                 <Text style={styles.pecaNome}>{p.nome}</Text>
-                <Text style={styles.pecaValor}>R$ {parseFloat(p.valor).toFixed(2)}</Text>
+                <Text style={styles.pecaValor}>R$ {formatarMoeda(p.valor)}</Text>
               </View>
             ))}
           </View>
@@ -419,7 +420,7 @@ export default function DetalhesOS({ route, navigation }) {
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Mão de Obra</Text>
             <Text style={styles.totalValorSub}>
-              R$ {parseFloat(os.valorMaoDeObra || 0).toFixed(2)}
+              R$ {formatarMoeda(os.valorMaoDeObra)}
             </Text>
           </View>
           {os.pecas?.length > 0 && (
@@ -428,7 +429,7 @@ export default function DetalhesOS({ route, navigation }) {
                 Peças ({os.pecas.length} {os.pecas.length === 1 ? 'item' : 'itens'})
               </Text>
               <Text style={styles.totalValorSub}>
-                R$ {os.pecas.reduce((a, p) => a + parseFloat(p.valor || 0), 0).toFixed(2)}
+                R$ {formatarMoeda(os.pecas.reduce((a, p) => a + parseFloat(p.valor || 0), 0))}
               </Text>
             </View>
           )}
@@ -436,7 +437,7 @@ export default function DetalhesOS({ route, navigation }) {
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Deslocamento ({os.deslocamentoKm} km)</Text>
               <Text style={styles.totalValorSub}>
-                R$ {parseFloat(os.deslocamentoValor || 0).toFixed(2)}
+                R$ {formatarMoeda(os.deslocamentoValor)}
               </Text>
             </View>
           )}
@@ -444,7 +445,7 @@ export default function DetalhesOS({ route, navigation }) {
           <View style={styles.totalRow}>
             <Text style={styles.totalLabelMain}>TOTAL GERAL</Text>
             <Text style={styles.totalValorMain}>
-              R$ {parseFloat(os.total).toFixed(2)}
+              R$ {formatarMoeda(os.total)}
             </Text>
           </View>
         </View>

@@ -4,12 +4,13 @@ import {
   ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
 import { capturarLocalizacao } from '../utils/geo';
 
-const HEADER_BG = '#1A237E';
+const HEADER_BG = '#2563EB';
 
 export default function Configuracoes({ navigation }) {
   const { config, salvarConfig } = useApp();
@@ -61,7 +62,7 @@ export default function Configuracoes({ navigation }) {
         raioIsencaoKm: parseFloat((raio || '0').replace(',', '.')) || 0,
         valorPorKm: parseFloat((valorKm || '0').replace(',', '.')) || 0,
       });
-      Alert.alert('Salvo', 'Configurações salvas com sucesso.');
+      Toast.show({ type: 'success', text1: 'Configurações salvas!', text2: 'As novas configurações estão ativas.', visibilityTime: 3000 });
       navigation.goBack();
     } catch (e) {
       Alert.alert('Erro', 'Não foi possível salvar agora. Verifique a conexão e tente novamente.');
@@ -101,11 +102,11 @@ export default function Configuracoes({ navigation }) {
               <View style={styles.rowDupla}>
                 <View style={{ flex: 1, marginRight: 8 }}>
                   <Text style={styles.label}>Latitude</Text>
-                  <TextInput style={styles.input} value={lat} onChangeText={setLat} keyboardType="numbers-and-punctuation" placeholder="-28.677500" placeholderTextColor={CORES.placeholder} />
+                  <TextInput style={[styles.input, styles.inputReadOnly]} value={lat} editable={false} placeholder="Use o botão GPS" placeholderTextColor={CORES.placeholder} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.label}>Longitude</Text>
-                  <TextInput style={styles.input} value={lng} onChangeText={setLng} keyboardType="numbers-and-punctuation" placeholder="-49.369700" placeholderTextColor={CORES.placeholder} />
+                  <TextInput style={[styles.input, styles.inputReadOnly]} value={lng} editable={false} placeholder="Use o botão GPS" placeholderTextColor={CORES.placeholder} />
                 </View>
               </View>
 
@@ -159,13 +160,13 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
   cardTituloRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  cardIcone: { width: 26, height: 26, borderRadius: 8, backgroundColor: '#EEF0FF', justifyContent: 'center', alignItems: 'center', marginRight: 8 },
-  cardTitulo: { fontSize: 10, fontWeight: '800', color: HEADER_BG, letterSpacing: 1 },
-  ajuda: { fontSize: 12, color: CORES.placeholder, marginBottom: 12 },
+  cardIcone: { width: 26, height: 26, borderRadius: 8, backgroundColor: '#DBEAFE', justifyContent: 'center', alignItems: 'center', marginRight: 8 },
+  cardTitulo: { fontSize: 12, fontWeight: '800', color: HEADER_BG, letterSpacing: 1 },
+  ajuda: { fontSize: 13, color: CORES.textoSecundario, marginBottom: 12 },
 
   btnGps: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: '#EEF0FF', borderRadius: 12, paddingVertical: 12, marginBottom: 14,
+    backgroundColor: '#DBEAFE', borderRadius: 12, paddingVertical: 12, marginBottom: 14,
     borderWidth: 1, borderColor: CORES.secundaria,
   },
   btnGpsTxt: { color: HEADER_BG, fontWeight: '700', fontSize: 14 },
@@ -177,7 +178,8 @@ const styles = StyleSheet.create({
     borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12,
     fontSize: 15, color: CORES.textoPrincipal,
   },
-  regra: { fontSize: 11, color: CORES.placeholder, marginTop: 12, lineHeight: 16, fontStyle: 'italic' },
+  regra: { fontSize: 12, color: CORES.textoSecundario, marginTop: 12, lineHeight: 18, fontStyle: 'italic' },
+  inputReadOnly: { backgroundColor: '#EFF6FF', color: CORES.textoSecundario },
 
   btnSalvar: {
     backgroundColor: HEADER_BG, borderRadius: 14, paddingVertical: 16,

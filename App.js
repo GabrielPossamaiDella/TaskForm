@@ -17,6 +17,7 @@ import DetalhesOS from './src/screens/DetalhesOS';
 import GestaoClientes from './src/screens/GestaoClientes';
 import Configuracoes from './src/screens/Configuracoes';
 
+import Toast from 'react-native-toast-message';
 import { CORES } from './src/styles/temas';
 import { AppProvider } from './src/context/AppContext';
 
@@ -33,15 +34,16 @@ function HomeTabs() {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: CORES.primaria,
-          borderTopWidth: 0,
+          backgroundColor: '#F3F4F6',
+          borderTopWidth: 1,
+          borderTopColor: '#E5E7EB',
           height: tabBarHeight,
           paddingBottom: tabBarPaddingBottom,
           paddingTop: 8,
           overflow: 'visible',
         },
-        tabBarActiveTintColor: CORES.branco,
-        tabBarInactiveTintColor: 'rgba(255,255,255,0.5)',
+        tabBarActiveTintColor: CORES.primaria,
+        tabBarInactiveTintColor: '#9CA3AF',
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           if (route.name === 'Painel') {
@@ -49,7 +51,7 @@ function HomeTabs() {
           } else if (route.name === 'Nova OS') {
             iconName = focused ? 'add-circle' : 'add-circle-outline';
             size = 34;
-            color = focused ? CORES.branco : 'rgba(255,255,255,0.7)';
+            color = focused ? CORES.primaria : '#9CA3AF';
           } else if (route.name === 'Perfil') {
             iconName = focused ? 'person' : 'person-outline';
           }
@@ -130,6 +132,7 @@ export default function App() {
         </Stack.Navigator>
       </NavigationContainer>
       </SafeAreaProvider>
+      <Toast />
     </AppProvider>
   );
 }

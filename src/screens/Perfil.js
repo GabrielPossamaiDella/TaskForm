@@ -4,11 +4,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
 
-const HEADER_BG = '#1A237E';
+const HEADER_BG = '#2563EB';
 const LOGO_KEY = '@logo_pdf';
 const MAX_BYTES = 2 * 1024 * 1024;
 
@@ -22,7 +23,7 @@ export default function Perfil({ navigation }) {
   }, []);
 
   const handleLogout = () => {
-    Alert.alert('Sair do TaskForm', 'Deseja realmente encerrar a sessão?', [
+    Alert.alert('Encerrar Sessão?', 'Você precisará fazer login novamente para acessar o app.', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Sair', style: 'destructive',
@@ -70,14 +71,14 @@ export default function Perfil({ navigation }) {
       const dataUri = `data:image/${mime};base64,${base64}`;
       await AsyncStorage.setItem(LOGO_KEY, dataUri);
       setLogoPDF(dataUri);
-      Alert.alert('Logo atualizada', 'A nova logo será usada nos próximos PDFs.');
+      Toast.show({ type: 'success', text1: 'Logo atualizada!', text2: 'Será usada nos próximos PDFs.', visibilityTime: 3000 });
     } catch {
       Alert.alert('Erro', 'Não foi possível salvar a imagem.');
     }
   };
 
   const restaurarLogoPadrao = () => {
-    Alert.alert('Restaurar logo padrão', 'Remover a logo personalizada?', [
+    Alert.alert('Restaurar logo padrão?', 'A logo personalizada será removida e a padrão voltará a ser usada.', [
       { text: 'Cancelar', style: 'cancel' },
       { text: 'Restaurar', style: 'destructive', onPress: async () => { await AsyncStorage.removeItem(LOGO_KEY); setLogoPDF(null); } },
     ]);
@@ -215,7 +216,7 @@ const styles = StyleSheet.create({
   },
   avatarTxt: { color: '#fff', fontSize: 28, fontWeight: '800' },
   nomeUsuario: { fontSize: 20, fontWeight: '800', color: '#fff', marginBottom: 4 },
-  cargoUsuario: { fontSize: 13, color: 'rgba(255,255,255,0.55)', letterSpacing: 0.3 },
+  cargoUsuario: { fontSize: 13, color: 'rgba(255,255,255,0.85)', letterSpacing: 0.3 },
 
   // CONTENT
   contentArea: {
@@ -232,7 +233,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
   statValor: { fontSize: 32, fontWeight: '800', color: HEADER_BG },
-  statLabel: { fontSize: 9, color: CORES.textoSecundario, fontWeight: '700', marginTop: 4, letterSpacing: 0.5, textAlign: 'center' },
+  statLabel: { fontSize: 12, color: CORES.textoSecundario, fontWeight: '700', marginTop: 4, letterSpacing: 0.5, textAlign: 'center' },
 
   // CARDS
   card: {
@@ -241,19 +242,19 @@ const styles = StyleSheet.create({
   },
   cardTituloRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 14 },
   cardIcone: {
-    width: 26, height: 26, borderRadius: 8, backgroundColor: '#EEF0FF',
+    width: 26, height: 26, borderRadius: 8, backgroundColor: '#DBEAFE',
     justifyContent: 'center', alignItems: 'center', marginRight: 8,
   },
-  cardTitulo: { fontSize: 10, fontWeight: '800', color: HEADER_BG, letterSpacing: 1 },
+  cardTitulo: { fontSize: 12, fontWeight: '800', color: HEADER_BG, letterSpacing: 1 },
 
   infoRow: { paddingVertical: 4 },
-  infoLabel: { fontSize: 11, color: CORES.placeholder, marginBottom: 2 },
+  infoLabel: { fontSize: 12, color: CORES.textoSecundario, marginBottom: 2 },
   infoValor: { fontSize: 14, color: '#111', fontWeight: '600' },
   divisor: { height: 1, backgroundColor: '#F0F0F0', marginVertical: 10 },
 
   itemMenu: { flexDirection: 'row', alignItems: 'center', paddingVertical: 4 },
   itemMenuIcone: {
-    width: 34, height: 34, borderRadius: 10, backgroundColor: '#EEF0FF',
+    width: 34, height: 34, borderRadius: 10, backgroundColor: '#DBEAFE',
     justifyContent: 'center', alignItems: 'center', marginRight: 12,
   },
   itemMenuTxt: { flex: 1, fontSize: 14, color: '#111', fontWeight: '500' },
@@ -265,12 +266,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center', marginBottom: 10, overflow: 'hidden',
   },
   logoPreview: { width: '85%', height: 60 },
-  logoPadraoTxt: { position: 'absolute', bottom: 5, right: 10, fontSize: 10, color: CORES.placeholder, fontStyle: 'italic' },
+  logoPadraoTxt: { position: 'absolute', bottom: 5, right: 10, fontSize: 12, color: CORES.textoSecundario, fontStyle: 'italic' },
   criteriosBox: {
     flexDirection: 'row', alignItems: 'flex-start',
     backgroundColor: '#F8F8F8', borderRadius: 8, padding: 10, marginBottom: 12,
   },
-  criteriosTxt: { fontSize: 11, color: CORES.textoSecundario, marginLeft: 6, flex: 1 },
+  criteriosTxt: { fontSize: 12, color: CORES.textoSecundario, marginLeft: 6, flex: 1 },
   logoAcoes: { flexDirection: 'row', gap: 10 },
   btnAlterarLogo: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
@@ -289,5 +290,5 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: '#FFD0CE', marginBottom: 20,
   },
   btnLogoutTxt: { color: '#FF3B30', fontWeight: '800', fontSize: 15, letterSpacing: 0.5 },
-  versao: { textAlign: 'center', fontSize: 11, color: CORES.placeholder, marginBottom: 10 },
+  versao: { textAlign: 'center', fontSize: 12, color: CORES.textoSecundario, marginBottom: 10 },
 });

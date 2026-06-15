@@ -5,12 +5,14 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
 import StepProgress from '../components/StepProgress';
+import { formatarMoeda } from '../utils/format';
 import { capturarLocalizacao, calcularDeslocamento } from '../utils/geo';
 
-const HEADER_BG = '#1A237E';
+const HEADER_BG = '#2563EB';
 
 export default function NovaOSResumo({ navigation }) {
   const { osAtual, finalizarOS, atualizarOS, config } = useApp();
@@ -51,7 +53,7 @@ export default function NovaOSResumo({ navigation }) {
     setSalvando(true);
     try {
       await finalizarOS();
-      Alert.alert('Sucesso', 'Ordem de Serviço salva com sucesso!');
+      Toast.show({ type: 'success', text1: 'OS salva!', text2: 'Ordem de Serviço registrada com sucesso.', visibilityTime: 3000 });
       navigation.navigate('Home', { screen: 'Painel' });
     } catch {
       Alert.alert('Erro', 'Não foi possível salvar a OS.');
@@ -108,7 +110,7 @@ export default function NovaOSResumo({ navigation }) {
               {osAtual.pecas.map((p, i) => (
                 <View key={p.id || i} style={[styles.pecaRow, i === osAtual.pecas.length - 1 && { borderBottomWidth: 0 }]}>
                   <Text style={styles.pecaNome}>{p.nome}</Text>
-                  <Text style={styles.pecaValor}>R$ {parseFloat(p.valor).toFixed(2)}</Text>
+                  <Text style={styles.pecaValor}>R$ {formatarMoeda(p.valor)}</Text>
                 </View>
               ))}
             </View>
@@ -118,12 +120,12 @@ export default function NovaOSResumo({ navigation }) {
           <View style={styles.cardFinanceiro}>
             <View style={styles.finRow}>
               <Text style={styles.finLabel}>Mão de Obra</Text>
-              <Text style={styles.finValor}>R$ {maoDeObra.toFixed(2)}</Text>
+              <Text style={styles.finValor}>R$ {formatarMoeda(maoDeObra)}</Text>
             </View>
             {osAtual.pecas.length > 0 && (
               <View style={styles.finRow}>
                 <Text style={styles.finLabel}>Peças ({osAtual.pecas.length})</Text>
-                <Text style={styles.finValor}>R$ {totalPecas.toFixed(2)}</Text>
+                <Text style={styles.finValor}>R$ {formatarMoeda(totalPecas)}</Text>
               </View>
             )}
             {buscandoLocal && (
@@ -135,13 +137,13 @@ export default function NovaOSResumo({ navigation }) {
             {deslocamento > 0 && (
               <View style={styles.finRow}>
                 <Text style={styles.finLabel}>Deslocamento ({osAtual.deslocamentoKm} km)</Text>
-                <Text style={styles.finValor}>R$ {deslocamento.toFixed(2)}</Text>
+                <Text style={styles.finValor}>R$ {formatarMoeda(deslocamento)}</Text>
               </View>
             )}
             <View style={styles.finDivisor} />
             <View style={styles.finRow}>
               <Text style={styles.finTotalLabel}>TOTAL GERAL</Text>
-              <Text style={styles.finTotalValor}>R$ {totalGeral.toFixed(2)}</Text>
+              <Text style={styles.finTotalValor}>R$ {formatarMoeda(totalGeral)}</Text>
             </View>
           </View>
 
@@ -189,10 +191,10 @@ const styles = StyleSheet.create({
   },
   cardTituloRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   cardIcone: {
-    width: 26, height: 26, borderRadius: 8, backgroundColor: '#EEF0FF',
+    width: 26, height: 26, borderRadius: 8, backgroundColor: '#DBEAFE',
     justifyContent: 'center', alignItems: 'center', marginRight: 8,
   },
-  cardTitulo: { fontSize: 10, fontWeight: '800', color: HEADER_BG, letterSpacing: 1 },
+  cardTitulo: { fontSize: 12, fontWeight: '800', color: HEADER_BG, letterSpacing: 1 },
   cardValor: { fontSize: 16, fontWeight: '700', color: '#111' },
   cardSub: { fontSize: 13, color: '#666', marginTop: 4, lineHeight: 18 },
 
@@ -209,8 +211,8 @@ const styles = StyleSheet.create({
     shadowColor: HEADER_BG, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 5,
   },
   finRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4 },
-  finLabel: { fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: '500' },
-  finValor: { fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: '700' },
+  finLabel: { fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: '500' },
+  finValor: { fontSize: 13, color: '#fff', fontWeight: '700' },
   finDivisor: { height: 1, backgroundColor: 'rgba(255,255,255,0.15)', marginVertical: 12 },
   finTotalLabel: { fontSize: 14, fontWeight: '800', color: '#fff' },
   finTotalValor: { fontSize: 26, fontWeight: '800', color: '#fff' },

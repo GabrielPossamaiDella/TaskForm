@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, Image, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
+import { formatarMoeda } from '../utils/format';
 
-const HEADER_BG = '#1A237E';
-const ACCENT = '#5A54FF';
+const HEADER_BG = '#2563EB';
+const ACCENT = '#1D4ED8';
 
 const STATUS_CONFIG = {
   'Aberta':        { bg: '#E3F2FD', text: '#1565C0' },
@@ -21,13 +23,11 @@ export default function Home({ navigation }) {
 
   const handleSincronizar = async () => {
     const ok = await sincronizar();
-    Alert.alert(
-      ok ? 'Sincronizado' : 'Sem conexão',
-      ok
-        ? 'Seus dados foram sincronizados com a nuvem.'
-        : 'Não foi possível conectar agora. Seus dados estão salvos no aparelho e subirão automaticamente quando houver internet.',
-      [{ text: 'OK' }]
-    );
+    if (ok) {
+      Toast.show({ type: 'success', text1: 'Sincronizado!', text2: 'Dados enviados para a nuvem.', visibilityTime: 3000 });
+    } else {
+      Toast.show({ type: 'error', text1: 'Sem conexão', text2: 'Dados salvos localmente e enviarão automaticamente.', visibilityTime: 4000 });
+    }
   };
 
   const listaFiltrada = searchQuery.trim()
@@ -83,7 +83,7 @@ export default function Home({ navigation }) {
           <Ionicons name="calendar-outline" size={11} color={ACCENT} />
           <Text style={styles.textoDate}> {item.data}</Text>
         </View>
-        <Text style={styles.valorOS}>R$ {parseFloat(item.total || 0).toFixed(2)}</Text>
+        <Text style={styles.valorOS}>R$ {formatarMoeda(item.total)}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -188,9 +188,9 @@ const styles = StyleSheet.create({
   headerLogoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
   logoGlowBox: {
     width: 40, height: 40, borderRadius: 10,
-    backgroundColor: 'rgba(90,84,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.15)',
     justifyContent: 'center', alignItems: 'center',
-    shadowColor: ACCENT, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 10,
+    shadowColor: '#fff', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.3, shadowRadius: 8,
   },
   headerLogo: { width: 32, height: 32 },
   titleContainer: { flex: 1, marginLeft: 12 },

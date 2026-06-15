@@ -9,7 +9,7 @@ import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
 import StepProgress from '../components/StepProgress';
 
-const HEADER_BG = '#1A237E';
+const HEADER_BG = '#2563EB';
 
 const DEFEITOS_COMUNS = [
   'Ponto pulando', 'Quebrando agulha', 'Linha arrebentando',
@@ -129,10 +129,10 @@ const styles = StyleSheet.create({
   },
   cardTituloRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   cardIcone: {
-    width: 26, height: 26, borderRadius: 8, backgroundColor: '#EEF0FF',
+    width: 26, height: 26, borderRadius: 8, backgroundColor: '#DBEAFE',
     justifyContent: 'center', alignItems: 'center', marginRight: 8,
   },
-  cardTitulo: { fontSize: 10, fontWeight: '800', color: HEADER_BG, letterSpacing: 1 },
+  cardTitulo: { fontSize: 12, fontWeight: '800', color: HEADER_BG, letterSpacing: 1 },
   sublabel: { fontSize: 12, color: CORES.placeholder, marginBottom: 8 },
 
   input: {
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
 
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   tag: {
-    backgroundColor: '#EEF0FF', paddingHorizontal: 10, paddingVertical: 6,
+    backgroundColor: '#DBEAFE', paddingHorizontal: 10, paddingVertical: 6,
     borderRadius: 20, borderWidth: 1, borderColor: CORES.secundaria,
   },
   tagTxt: { color: CORES.secundaria, fontSize: 12, fontWeight: '600' },

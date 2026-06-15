@@ -6,7 +6,7 @@ import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
 import ClienteModal from '../components/ClienteModal';
 
-const HEADER_BG = '#1A237E';
+const HEADER_BG = '#2563EB';
 
 export default function NovaOSCliente({ navigation }) {
   const { clientes, osAtual, atualizarOS, adicionarCliente, excluirCliente } = useApp();
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
   btnNovoIcone: {
-    width: 32, height: 32, borderRadius: 8, backgroundColor: '#EEF0FF',
+    width: 32, height: 32, borderRadius: 8, backgroundColor: '#DBEAFE',
     justifyContent: 'center', alignItems: 'center', marginRight: 12,
   },
   btnNovoTxt: { flex: 1, color: HEADER_BG, fontWeight: '700', fontSize: 13 },
@@ -198,10 +198,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
   cardSelecionado: {
-    borderWidth: 2, borderColor: CORES.secundaria, backgroundColor: '#F8F6FF',
+    borderWidth: 2, borderColor: CORES.secundaria, backgroundColor: '#EFF6FF',
   },
   avatar: {
-    width: 42, height: 42, borderRadius: 21, backgroundColor: '#EEF0FF',
+    width: 42, height: 42, borderRadius: 21, backgroundColor: '#DBEAFE',
     justifyContent: 'center', alignItems: 'center', marginRight: 12,
   },
   avatarLetra: { fontSize: 17, fontWeight: '800', color: HEADER_BG },

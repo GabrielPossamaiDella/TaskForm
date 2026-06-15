@@ -8,8 +8,9 @@ import { Ionicons, Feather } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
 import StepProgress from '../components/StepProgress';
+import { formatarMoeda } from '../utils/format';
 
-const HEADER_BG = '#1A237E';
+const HEADER_BG = '#2563EB';
 
 export default function NovaOSServicos({ navigation }) {
   const { osAtual, atualizarOS, adicionarPecaOS, removerPecaOS } = useApp();
@@ -24,7 +25,7 @@ export default function NovaOSServicos({ navigation }) {
 
   const handleAdicionarPeca = () => {
     if (!nomePeca.trim() || !valorPeca.trim()) return;
-    adicionarPecaOS({ nome: nomePeca.trim(), valor: valorPeca, id: `${Date.now()}` });
+    adicionarPecaOS({ nome: nomePeca.trim(), valor: String(parseFloat(valorPeca.replace(',', '.')) || 0), id: `${Date.now()}` });
     setNomePeca('');
     setValorPeca('');
   };
@@ -122,7 +123,7 @@ export default function NovaOSServicos({ navigation }) {
                   {osAtual.pecas.map((item) => (
                     <View key={item.id} style={styles.itemPeca}>
                       <Text style={styles.nomePeca} numberOfLines={1}>{item.nome}</Text>
-                      <Text style={styles.valorPecaTxt}>R$ {parseFloat(item.valor).toFixed(2)}</Text>
+                      <Text style={styles.valorPecaTxt}>R$ {formatarMoeda(item.valor)}</Text>
                       <TouchableOpacity
                         onPress={() => removerPecaOS(item.id)}
                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -141,18 +142,18 @@ export default function NovaOSServicos({ navigation }) {
               <View style={styles.cardResumo}>
                 <View style={styles.resumoRow}>
                   <Text style={styles.resumoLabel}>Mão de obra</Text>
-                  <Text style={styles.resumoValor}>R$ {maoDeObra.toFixed(2)}</Text>
+                  <Text style={styles.resumoValor}>R$ {formatarMoeda(maoDeObra)}</Text>
                 </View>
                 {osAtual.pecas.length > 0 && (
                   <View style={styles.resumoRow}>
                     <Text style={styles.resumoLabel}>Peças ({osAtual.pecas.length})</Text>
-                    <Text style={styles.resumoValor}>R$ {totalPecas.toFixed(2)}</Text>
+                    <Text style={styles.resumoValor}>R$ {formatarMoeda(totalPecas)}</Text>
                   </View>
                 )}
                 <View style={styles.resumoDivisor} />
                 <View style={styles.resumoRow}>
                   <Text style={styles.resumoTotalLabel}>TOTAL PARCIAL</Text>
-                  <Text style={styles.resumoTotalValor}>R$ {(maoDeObra + totalPecas).toFixed(2)}</Text>
+                  <Text style={styles.resumoTotalValor}>R$ {formatarMoeda(maoDeObra + totalPecas)}</Text>
                 </View>
               </View>
             )}
@@ -192,10 +193,10 @@ const styles = StyleSheet.create({
   },
   cardTituloRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   cardIcone: {
-    width: 26, height: 26, borderRadius: 8, backgroundColor: '#EEF0FF',
+    width: 26, height: 26, borderRadius: 8, backgroundColor: '#DBEAFE',
     justifyContent: 'center', alignItems: 'center', marginRight: 8,
   },
-  cardTitulo: { fontSize: 10, fontWeight: '800', color: HEADER_BG, letterSpacing: 1 },
+  cardTitulo: { fontSize: 12, fontWeight: '800', color: HEADER_BG, letterSpacing: 1 },
 
   input: {
     backgroundColor: '#F8F8F8', borderWidth: 1, borderColor: '#E8E8E8',
@@ -223,8 +224,8 @@ const styles = StyleSheet.create({
     shadowColor: HEADER_BG, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 10, elevation: 4,
   },
   resumoRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 },
-  resumoLabel: { fontSize: 13, color: 'rgba(255,255,255,0.55)' },
-  resumoValor: { fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: '600' },
+  resumoLabel: { fontSize: 13, color: 'rgba(255,255,255,0.9)' },
+  resumoValor: { fontSize: 13, color: '#fff', fontWeight: '600' },
   resumoDivisor: { height: 1, backgroundColor: 'rgba(255,255,255,0.15)', marginVertical: 8 },
   resumoTotalLabel: { fontSize: 13, fontWeight: '800', color: '#fff' },
   resumoTotalValor: { fontSize: 16, fontWeight: '800', color: '#fff' },

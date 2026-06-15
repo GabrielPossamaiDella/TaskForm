@@ -6,7 +6,7 @@ import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
 import ClienteModal from '../components/ClienteModal';
 
-const HEADER_BG = '#1A237E';
+const HEADER_BG = '#2563EB';
 
 export default function GestaoClientes({ navigation }) {
   const { clientes, adicionarCliente, editarCliente, excluirCliente } = useApp();
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
   avatar: {
-    width: 44, height: 44, borderRadius: 22, backgroundColor: '#EEF0FF',
+    width: 44, height: 44, borderRadius: 22, backgroundColor: '#DBEAFE',
     justifyContent: 'center', alignItems: 'center', marginRight: 12,
   },
   avatarLetra: { fontSize: 18, fontWeight: '800', color: HEADER_BG },
