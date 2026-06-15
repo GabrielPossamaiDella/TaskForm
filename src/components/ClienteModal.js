@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import {
   Modal, View, Text, TextInput, TouchableOpacity,
   StyleSheet, ScrollView, KeyboardAvoidingView, Platform,
-  Alert, ActivityIndicator, FlatList
+  Alert, ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { CORES, RAIO } from '../styles/temas';
-
-const UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
 
 const onlyDigits = (v) => v.replace(/\D/g, '');
 
@@ -49,7 +47,6 @@ export default function ClienteModal({ visible, onClose, onSalvar, clienteParaEd
   const [step, setStep] = useState(1);
   const [campos, setCampos] = useState(campoVazio);
   const [buscandoCep, setBuscandoCep] = useState(false);
-  const [pickerEstadoVisivel, setPickerEstadoVisivel] = useState(false);
 
   useEffect(() => {
     if (visible) {
@@ -121,7 +118,8 @@ export default function ClienteModal({ visible, onClose, onSalvar, clienteParaEd
 
             <ScrollView
               showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
+              keyboardShouldPersistTaps="always"
+              keyboardDismissMode="none"
               contentContainerStyle={{ paddingBottom: 60 }}
             >
               {step === 1 ? (
@@ -188,14 +186,16 @@ export default function ClienteModal({ visible, onClose, onSalvar, clienteParaEd
                     <TextInput style={styles.input} value={campos.cidade} onChangeText={v => set('cidade', v)} placeholder="Florianópolis" placeholderTextColor={CORES.placeholder} />
                   </Campo>
 
-                  {/* Picker de Estado */}
                   <Campo label="Estado (UF)">
-                    <TouchableOpacity style={[styles.input, styles.pickerBtn]} onPress={() => setPickerEstadoVisivel(true)}>
-                      <Text style={campos.estado ? styles.pickerTxt : styles.pickerPlaceholder}>
-                        {campos.estado || 'Selecione o estado...'}
-                      </Text>
-                      <Ionicons name="chevron-down" size={18} color={CORES.placeholder} />
-                    </TouchableOpacity>
+                    <TextInput
+                      style={styles.input}
+                      value={campos.estado}
+                      onChangeText={v => set('estado', v.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2))}
+                      placeholder="SC"
+                      placeholderTextColor={CORES.placeholder}
+                      autoCapitalize="characters"
+                      maxLength={2}
+                    />
                   </Campo>
 
                   <View style={styles.rowBotoes}>
@@ -213,35 +213,13 @@ export default function ClienteModal({ visible, onClose, onSalvar, clienteParaEd
           </View>
         </KeyboardAvoidingView>
       </Modal>
-
-      {/* Picker de Estado — modal separado para não conflitar com o KAV */}
-      <Modal visible={pickerEstadoVisivel} animationType="fade" transparent onRequestClose={() => setPickerEstadoVisivel(false)}>
-        <TouchableOpacity style={styles.pickerOverlay} activeOpacity={1} onPress={() => setPickerEstadoVisivel(false)}>
-          <View style={styles.pickerSheet}>
-            <Text style={styles.pickerTitulo}>Selecione o Estado</Text>
-            <FlatList
-              data={UFS}
-              keyExtractor={item => item}
-              numColumns={4}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[styles.ufBtn, campos.estado === item && styles.ufBtnAtivo]}
-                  onPress={() => { set('estado', item); setPickerEstadoVisivel(false); }}
-                >
-                  <Text style={[styles.ufTxt, campos.estado === item && styles.ufTxtAtivo]}>{item}</Text>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
-        </TouchableOpacity>
-      </Modal>
     </>
   );
 }
 
 function Campo({ label, children }) {
   return (
-    <View style={{ marginBottom: 14 }}>
+    <View>
       <Text style={styles.label}>{label}</Text>
       {children}
     </View>
@@ -269,7 +247,7 @@ const styles = StyleSheet.create({
   stepLinha: { width: 20, height: 2, backgroundColor: CORES.divisor, marginHorizontal: 4 },
   titulo: { flex: 1, fontSize: 16, fontWeight: 'bold', color: CORES.textoPrincipal },
   btnFechar: { padding: 4 },
-  corpo: { paddingTop: 8 },
+  corpo: { paddingTop: 8, gap: 14 },
   label: { fontSize: 12, fontWeight: '600', color: CORES.textoSecundario, marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 },
   input: {
     backgroundColor: '#F7F7F7',

@@ -40,6 +40,9 @@ export default function Home({ navigation }) {
       })
     : listaOS;
 
+  // Botão de sincronizar só fica "ativo" (azul) quando há OS pendente de envio.
+  const tudoSincronizado = listaOS.length > 0 && listaOS.every(os => os.sincronizada);
+
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.cardOS}
@@ -114,11 +117,11 @@ export default function Home({ navigation }) {
 
         {/* Barra de pesquisa */}
         <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={16} color="rgba(255,255,255,0.45)" style={{ marginRight: 8 }} />
+          <Ionicons name="search-outline" size={16} color="rgba(255,255,255,0.7)" style={{ marginRight: 8 }} />
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar por cliente ou Nº OS..."
-            placeholderTextColor="rgba(255,255,255,0.3)"
+            placeholderTextColor="rgba(255,255,255,0.6)"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -139,8 +142,8 @@ export default function Home({ navigation }) {
             <Text style={styles.valorTopCard}>{listaOS.length}</Text>
           </View>
           <TouchableOpacity
-            style={[styles.syncCard, !online && styles.syncCardOffline]}
-            disabled={sincronizando}
+            style={[styles.syncCard, (!online || tudoSincronizado) && styles.syncCardInativo]}
+            disabled={sincronizando || tudoSincronizado}
             activeOpacity={0.8}
             onPress={handleSincronizar}
           >
@@ -148,13 +151,13 @@ export default function Home({ navigation }) {
               <ActivityIndicator color="#fff" />
             ) : (
               <Ionicons
-                name={online ? 'cloud-done-outline' : 'cloud-offline-outline'}
+                name={!online ? 'cloud-offline-outline' : tudoSincronizado ? 'checkmark-done-outline' : 'cloud-upload-outline'}
                 size={26}
                 color="#fff"
               />
             )}
             <Text style={styles.textoSyncCard}>
-              {sincronizando ? 'SINCRONIZANDO...' : (online ? 'SINCRONIZAR' : 'OFFLINE')}
+              {sincronizando ? 'SINCRONIZANDO...' : !online ? 'OFFLINE' : tudoSincronizado ? 'TUDO SINCRONIZADO' : 'SINCRONIZAR'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -200,9 +203,9 @@ const styles = StyleSheet.create({
   // SEARCH
   searchBar: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(255,255,255,0.14)',
     borderRadius: 12, paddingHorizontal: 14, height: 44,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)',
   },
   searchInput: { flex: 1, fontSize: 14, color: '#fff' },
 
@@ -228,8 +231,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center',
     shadowColor: CORES.secundaria, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 10, elevation: 4,
   },
-  syncCardDisabled: { opacity: 0.5, shadowOpacity: 0 },
-  syncCardOffline: { backgroundColor: '#9AA0B5', shadowOpacity: 0 },
+  syncCardInativo: { backgroundColor: '#9AA0B5', shadowOpacity: 0, elevation: 0 },
   textoSyncCard: { color: '#fff', fontSize: 10, fontWeight: '700', marginTop: 6, letterSpacing: 0.5 },
 
   // OS CARDS
@@ -245,7 +247,7 @@ const styles = StyleSheet.create({
   textoStatus: { color: '#2E7D32', fontSize: 10, fontWeight: '700' },
   osInfoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
   iconInfo: { marginRight: 8 },
-  osCliente: { fontSize: 15, fontWeight: '700', color: HEADER_BG, flex: 1 },
+  osCliente: { fontSize: 15, fontWeight: '700', color: CORES.textoPrincipal, flex: 1 },
   osMaquina: { fontSize: 13, color: CORES.textoSecundario, flex: 1 },
   divisorCard: { height: 1, backgroundColor: '#F0F0F0', marginVertical: 10 },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

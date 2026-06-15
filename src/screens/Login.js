@@ -8,8 +8,8 @@ import { CORES, RAIO } from '../styles/temas';
 import { supabase } from '../services/supabase';
 
 export default function Login({ navigation }) {
-  const [email, setEmail] = useState('gabriel@tecflex.com.br');
-  const [senha, setSenha] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
   const [carregando, setCarregando] = useState(false);
 
   useEffect(() => {
@@ -42,7 +42,9 @@ export default function Login({ navigation }) {
         return;
       }
       await AsyncStorage.setItem('@token_acesso', usuario.token);
-      await AsyncStorage.setItem('@usuario', JSON.stringify(usuario));
+      // Garante o e-mail no perfil mesmo que o backend não o devolva.
+      const usuarioCompleto = { ...usuario, email: usuario.email || email.trim() };
+      await AsyncStorage.setItem('@usuario', JSON.stringify(usuarioCompleto));
       navigation.replace('Home');
     } catch (e) {
       Alert.alert('Erro', 'Não foi possível conectar. Verifique sua internet.');
@@ -105,7 +107,7 @@ export default function Login({ navigation }) {
 
           </View>
           
-          <Text style={styles.copyright}>© 2026 Tecflex | Administração Possamai.</Text>
+          <Text style={styles.copyright}>© 2026 TaskForm</Text>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

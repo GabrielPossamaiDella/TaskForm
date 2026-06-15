@@ -8,7 +8,7 @@ import { Ionicons, Feather } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
 import StepProgress from '../components/StepProgress';
-import { formatarMoeda } from '../utils/format';
+import { formatarMoeda, aplicarMascaraMoeda, moedaParaArmazenar, moedaParaExibicao } from '../utils/format';
 
 const HEADER_BG = '#2563EB';
 
@@ -25,7 +25,7 @@ export default function NovaOSServicos({ navigation }) {
 
   const handleAdicionarPeca = () => {
     if (!nomePeca.trim() || !valorPeca.trim()) return;
-    adicionarPecaOS({ nome: nomePeca.trim(), valor: String(parseFloat(valorPeca.replace(',', '.')) || 0), id: `${Date.now()}` });
+    adicionarPecaOS({ nome: nomePeca.trim(), valor: moedaParaArmazenar(valorPeca) || '0', id: `${Date.now()}` });
     setNomePeca('');
     setValorPeca('');
   };
@@ -78,8 +78,8 @@ export default function NovaOSServicos({ navigation }) {
               </View>
               <TextInput
                 style={styles.input}
-                value={String(osAtual.valorMaoDeObra)}
-                onChangeText={txt => atualizarOS({ valorMaoDeObra: txt })}
+                value={moedaParaExibicao(osAtual.valorMaoDeObra)}
+                onChangeText={txt => atualizarOS({ valorMaoDeObra: moedaParaArmazenar(aplicarMascaraMoeda(txt)) })}
                 keyboardType="numeric"
                 placeholder="0,00"
                 placeholderTextColor={CORES.placeholder}
@@ -108,7 +108,7 @@ export default function NovaOSServicos({ navigation }) {
                   placeholder="R$"
                   placeholderTextColor={CORES.placeholder}
                   value={valorPeca}
-                  onChangeText={setValorPeca}
+                  onChangeText={txt => setValorPeca(aplicarMascaraMoeda(txt))}
                   keyboardType="numeric"
                 />
               </View>
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   cardTitulo: { fontSize: 12, fontWeight: '800', color: HEADER_BG, letterSpacing: 1 },
 
   input: {
-    backgroundColor: '#F8F8F8', borderWidth: 1, borderColor: '#E8E8E8',
+    backgroundColor: '#F4F6FA', borderWidth: 1.5, borderColor: '#D9DEEA',
     borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12,
     fontSize: 15, color: CORES.textoPrincipal,
   },

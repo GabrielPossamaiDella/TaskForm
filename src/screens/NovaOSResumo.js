@@ -69,7 +69,7 @@ export default function NovaOSResumo({ navigation }) {
       </View>
 
       <View style={styles.contentArea}>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scroll, { paddingBottom: 30 + insets.bottom }]}> 
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
 
           {/* Card Cliente */}
           <View style={styles.card}>
@@ -118,10 +118,12 @@ export default function NovaOSResumo({ navigation }) {
 
           {/* Card Financeiro — fundo escuro */}
           <View style={styles.cardFinanceiro}>
-            <View style={styles.finRow}>
-              <Text style={styles.finLabel}>Mão de Obra</Text>
-              <Text style={styles.finValor}>R$ {formatarMoeda(maoDeObra)}</Text>
-            </View>
+            {maoDeObra > 0 && (
+              <View style={styles.finRow}>
+                <Text style={styles.finLabel}>Mão de Obra</Text>
+                <Text style={styles.finValor}>R$ {formatarMoeda(maoDeObra)}</Text>
+              </View>
+            )}
             {osAtual.pecas.length > 0 && (
               <View style={styles.finRow}>
                 <Text style={styles.finLabel}>Peças ({osAtual.pecas.length})</Text>
@@ -140,14 +142,23 @@ export default function NovaOSResumo({ navigation }) {
                 <Text style={styles.finValor}>R$ {formatarMoeda(deslocamento)}</Text>
               </View>
             )}
-            <View style={styles.finDivisor} />
+            {(maoDeObra > 0 || osAtual.pecas.length > 0 || deslocamento > 0 || buscandoLocal) && (
+              <View style={styles.finDivisor} />
+            )}
             <View style={styles.finRow}>
               <Text style={styles.finTotalLabel}>TOTAL GERAL</Text>
               <Text style={styles.finTotalValor}>R$ {formatarMoeda(totalGeral)}</Text>
             </View>
           </View>
 
-          {/* Botão finalizar */}
+        </ScrollView>
+
+        {/* Rodapé fixo com as ações */}
+        <View style={[styles.footer, { paddingBottom: 20 + insets.bottom }]}>
+          <TouchableOpacity style={styles.btnVoltar} onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={16} color={CORES.textoSecundario} />
+            <Text style={styles.btnVoltarTxt}>REVISAR</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             style={[styles.btnFinalizar, salvando && { opacity: 0.7 }]}
             onPress={handleFinalizar}
@@ -163,13 +174,7 @@ export default function NovaOSResumo({ navigation }) {
               </>
             )}
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.btnVoltar} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={16} color={CORES.textoSecundario} style={{ marginRight: 6 }} />
-            <Text style={styles.btnVoltarTxt}>REVISAR SERVIÇO</Text>
-          </TouchableOpacity>
-
-        </ScrollView>
+        </View>
       </View>
     </View>
   );
@@ -217,18 +222,20 @@ const styles = StyleSheet.create({
   finTotalLabel: { fontSize: 14, fontWeight: '800', color: '#fff' },
   finTotalValor: { fontSize: 26, fontWeight: '800', color: '#fff' },
 
+  footer: {
+    flexDirection: 'row', padding: 20, paddingTop: 12, gap: 10,
+    backgroundColor: '#F0F2F8', borderTopWidth: 1, borderTopColor: '#E8E8E8',
+  },
   btnFinalizar: {
-    backgroundColor: '#22C55E', borderRadius: 14, paddingVertical: 16,
+    flex: 1, backgroundColor: '#22C55E', borderRadius: 12, paddingVertical: 14,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     shadowColor: '#22C55E', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
-    marginBottom: 12,
   },
   btnFinalizarTxt: { color: '#fff', fontWeight: '800', fontSize: 15, letterSpacing: 0.5 },
-
   btnVoltar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    paddingVertical: 14, borderRadius: 12, borderWidth: 1, borderColor: '#E0E0E0',
+    paddingVertical: 14, paddingHorizontal: 16, borderRadius: 12, borderWidth: 1, borderColor: '#E0E0E0',
     backgroundColor: '#fff',
   },
-  btnVoltarTxt: { color: CORES.textoSecundario, fontWeight: '700', fontSize: 14 },
+  btnVoltarTxt: { color: CORES.textoSecundario, fontWeight: '700', fontSize: 14, marginLeft: 6 },
 });

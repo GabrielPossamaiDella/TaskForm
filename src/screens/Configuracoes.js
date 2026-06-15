@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
 import { capturarLocalizacao } from '../utils/geo';
+import { aplicarMascaraMoeda, moedaParaExibicao } from '../utils/format';
 
 const HEADER_BG = '#2563EB';
 
@@ -30,7 +31,7 @@ export default function Configuracoes({ navigation }) {
       setLng(config.baseLongitude != null ? String(config.baseLongitude) : '');
       setEndereco(config.baseEndereco || '');
       setRaio(config.raioIsencaoKm != null ? String(config.raioIsencaoKm) : '10');
-      setValorKm(config.valorPorKm != null ? String(config.valorPorKm) : '');
+      setValorKm(config.valorPorKm != null ? moedaParaExibicao(config.valorPorKm) : '');
     }
   }, [config]);
 
@@ -125,7 +126,7 @@ export default function Configuracoes({ navigation }) {
               <TextInput style={styles.input} value={raio} onChangeText={setRaio} keyboardType="numeric" placeholder="10" placeholderTextColor={CORES.placeholder} />
 
               <Text style={[styles.label, { marginTop: 12 }]}>Valor por km (R$)</Text>
-              <TextInput style={styles.input} value={valorKm} onChangeText={setValorKm} keyboardType="numeric" placeholder="2.50" placeholderTextColor={CORES.placeholder} />
+              <TextInput style={styles.input} value={valorKm} onChangeText={txt => setValorKm(aplicarMascaraMoeda(txt))} keyboardType="numeric" placeholder="2,50" placeholderTextColor={CORES.placeholder} />
 
               <Text style={styles.regra}>
                 Cobrança = (distância − raio grátis) × 2 (ida e volta) × valor/km.

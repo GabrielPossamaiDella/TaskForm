@@ -20,6 +20,14 @@ const STATUS_CONFIG = {
   'Concluída':     { bg: '#E8F5E9', text: '#2E7D32' },
 };
 
+// Escapa caracteres especiais antes de interpolar no HTML do PDF, evitando que
+// nomes/descricoes com & < > " quebrem o layout (ex.: "Silva & Cia").
+const escHtml = (s) => String(s ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;');
+
 export default function DetalhesOS({ route, navigation }) {
   const { osSelecionada } = route.params;
   const { excluirOS, carregarOSParaEdicao, listaOS, atualizarStatusOS } = useApp();
@@ -52,7 +60,7 @@ export default function DetalhesOS({ route, navigation }) {
       const pecasHtml = pecas.length > 0
         ? pecas.map((p) => `
           <tr>
-            <td>${p.nome}</td>
+            <td>${escHtml(p.nome)}</td>
             <td style="text-align:right;">R$ ${parseFloat(p.valor||0).toFixed(2).replace('.',',')}</td>
           </tr>`).join('')
         : `<tr><td colspan="2" style="padding:14px;text-align:center;color:#777;font-style:italic;">Nenhuma peça adicionada</td></tr>`;
@@ -74,6 +82,7 @@ export default function DetalhesOS({ route, navigation }) {
           if (u?.nome) tecnicoNome = u.nome;
         }
       } catch (_) {}
+      tecnicoNome = escHtml(tecnicoNome);
 
       // Status com cor
       const statusTxt = os.status || 'Aberta';
@@ -86,7 +95,7 @@ export default function DetalhesOS({ route, navigation }) {
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=794, initial-scale=1.0"/>
   <style>
-    @page { size: A4; margin: 8mm; }
+    @page { size: A4; margin: 0; }
     * { margin:0; padding:0; box-sizing:border-box; }
     html, body { height:auto; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     body { font-family:'Helvetica Neue','Segoe UI',Arial,sans-serif; background:#fff; color:#1A1A1A; font-size:12px; -webkit-font-smoothing:antialiased; }
@@ -172,18 +181,18 @@ export default function DetalhesOS({ route, navigation }) {
     <div class="section">
       <div class="section-title">Dados do Cliente</div>
       <div class="info-grid">
-        <div class="info-item full"><label>Nome / Razão Social:</label><span>${os.cliente?.nome || 'Cliente Avulso'}</span></div>
-        ${os.cliente?.documento ? `<div class="info-item"><label>CPF / CNPJ:</label><span>${os.cliente.documento}</span></div>` : ''}
-        ${os.cliente?.telefone ? `<div class="info-item"><label>Telefone:</label><span>${os.cliente.telefone}</span></div>` : ''}
-        ${clienteEnd ? `<div class="info-item full"><label>Endereço:</label><span>${clienteEnd}</span></div>` : ''}
+        <div class="info-item full"><label>Nome / Razão Social:</label><span>${escHtml(os.cliente?.nome || 'Cliente Avulso')}</span></div>
+        ${os.cliente?.documento ? `<div class="info-item"><label>CPF / CNPJ:</label><span>${escHtml(os.cliente.documento)}</span></div>` : ''}
+        ${os.cliente?.telefone ? `<div class="info-item"><label>Telefone:</label><span>${escHtml(os.cliente.telefone)}</span></div>` : ''}
+        ${clienteEnd ? `<div class="info-item full"><label>Endereço:</label><span>${escHtml(clienteEnd)}</span></div>` : ''}
       </div>
     </div>
 
     <div class="section">
       <div class="section-title">Equipamento e Serviço</div>
       <div class="info-grid">
-        <div class="info-item full"><label>Modelo da Máquina:</label><span>${os.maquina}</span></div>
-        <div class="info-item full"><label>Descrição do Serviço:</label><span>${os.servico || os.defeito || '—'}</span></div>
+        <div class="info-item full"><label>Modelo da Máquina:</label><span>${escHtml(os.maquina || '—')}</span></div>
+        <div class="info-item full"><label>Descrição do Serviço:</label><span>${escHtml(os.servico || os.defeito || '—')}</span></div>
       </div>
     </div>
 
@@ -191,7 +200,7 @@ export default function DetalhesOS({ route, navigation }) {
     <div class="section">
       <div class="section-title">Local do Atendimento</div>
       <div class="info-grid">
-        <div class="info-item full"><label>Endereço:</label><span>${clienteEnd}</span></div>
+        <div class="info-item full"><label>Endereço:</label><span>${escHtml(clienteEnd)}</span></div>
       </div>
     </div>` : ''}
 
@@ -213,7 +222,7 @@ export default function DetalhesOS({ route, navigation }) {
     <div class="assinatura">
       <div class="assin-box">
         <div class="assin-label">Assinatura do Cliente:</div>
-        <div class="assin-name">${os.cliente?.nome || '___________________________'}</div>
+        <div class="assin-name">${escHtml(os.cliente?.nome || '___________________________')}</div>
       </div>
       <div class="assin-box">
         <div class="assin-label">Técnico Responsável:</div>
@@ -227,7 +236,10 @@ export default function DetalhesOS({ route, navigation }) {
 </body>
 </html>`;
 
-      const { uri } = await Print.printToFileAsync({ html: htmlContent, base64: false, width: 794, height: 1123 });
+      // Sem width/height fixos: o tamanho A4 (e a margem 0) vêm do @page no CSS.
+      // Passar 794/1123 aqui era interpretado como PONTOS, gerando uma página
+      // maior que A4 e deixando o conteúdo "cortado" com sobra branca nas laterais.
+      const { uri } = await Print.printToFileAsync({ html: htmlContent, base64: false });
 
       // Nome de arquivo amigavel: OS-<numero>-<cliente>.pdf
       const semAcento = (s) => (s || '')
@@ -255,7 +267,7 @@ export default function DetalhesOS({ route, navigation }) {
     }
   };
 
-  const abrirNoMapa = () => {
+  const abrirNoMapa = async () => {
     const enderecoTxt = [
       os.cliente?.rua, os.cliente?.numero, os.cliente?.bairro,
       os.cliente?.cidade, os.cliente?.estado,
@@ -267,14 +279,43 @@ export default function DetalhesOS({ route, navigation }) {
       return;
     }
 
-    const query = temCoords ? `${os.latitude},${os.longitude}` : enderecoTxt;
-    const appUrl = Platform.select({
-      ios: `maps:0,0?q=${encodeURIComponent(query)}`,
-      android: `geo:0,0?q=${encodeURIComponent(query)}`,
-    });
-    const webUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    const { latitude: lat, longitude: lng } = os;
+    const q = encodeURIComponent(temCoords ? `${lat},${lng}` : enderecoTxt);
+    const rotulo = encodeURIComponent(os.cliente?.nome || 'Atendimento');
+    const webUrl = `https://www.google.com/maps/search/?api=1&query=${q}`;
 
-    Linking.openURL(appUrl).catch(() => Linking.openURL(webUrl));
+    // Android: o esquema geo: já faz o sistema perguntar qual app de mapa usar.
+    if (Platform.OS === 'android') {
+      Linking.openURL(`geo:0,0?q=${q}`).catch(() => Linking.openURL(webUrl));
+      return;
+    }
+
+    // iOS: detecta os apps de mapa instalados e deixa o usuário escolher.
+    const apps = [
+      { nome: 'Apple Maps', url: temCoords ? `maps://?ll=${lat},${lng}&q=${rotulo}` : `maps://?q=${q}` },
+      { nome: 'Google Maps', url: temCoords ? `comgooglemaps://?q=${lat},${lng}` : `comgooglemaps://?q=${q}` },
+      { nome: 'Waze', url: temCoords ? `waze://?ll=${lat},${lng}&navigate=yes` : `waze://?q=${q}` },
+    ];
+
+    const disponiveis = [];
+    for (const app of apps) {
+      try {
+        if (await Linking.canOpenURL(app.url)) disponiveis.push(app);
+      } catch (_) { /* esquema não consultável — ignora */ }
+    }
+
+    if (disponiveis.length === 0) {
+      Linking.openURL(`https://maps.apple.com/?q=${q}`).catch(() => Linking.openURL(webUrl));
+      return;
+    }
+    if (disponiveis.length === 1) {
+      Linking.openURL(disponiveis[0].url);
+      return;
+    }
+    Alert.alert('Abrir no mapa', 'Escolha o aplicativo:', [
+      ...disponiveis.map(app => ({ text: app.nome, onPress: () => Linking.openURL(app.url) })),
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
   };
 
   const handleEditar = () => {
@@ -330,10 +371,10 @@ export default function DetalhesOS({ route, navigation }) {
             <Feather name="edit-2" size={14} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.topBarIconBtn, { backgroundColor: 'rgba(255,255,255,0.18)' }]}
+            style={[styles.topBarIconBtn, { backgroundColor: 'rgba(255,255,255,0.28)' }]}
             onPress={handleExcluir}
           >
-            <Feather name="trash-2" size={14} color="rgba(255,255,255,0.85)" />
+            <Feather name="trash-2" size={14} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>
@@ -505,7 +546,7 @@ const styles = StyleSheet.create({
     shadowColor: HEADER_BG, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.35, shadowRadius: 14, elevation: 6,
   },
   totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 4 },
-  totalLabel: { fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: '500' },
+  totalLabel: { fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: '500' },
   totalValorSub: { fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: '700' },
   totalDivisor: { height: 1, backgroundColor: 'rgba(255,255,255,0.15)', marginVertical: 12 },
   totalLabelMain: { fontSize: 14, fontWeight: '800', color: '#fff' },

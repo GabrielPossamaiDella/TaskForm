@@ -15,7 +15,8 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "O TaskForm usa sua localização para registrar onde o atendimento foi realizado."
+        "NSLocationWhenInUseUsageDescription": "O TaskForm usa sua localização para registrar onde o atendimento foi realizado.",
+        "LSApplicationQueriesSchemes": ["comgooglemaps", "waze"]
       }
     },
     "android": {

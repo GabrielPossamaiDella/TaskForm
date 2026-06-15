@@ -30,13 +30,16 @@ Projeto desenvolvido por alunos do curso de Análise e Desenvolvimento de Sistem
 
 ## Funcionalidades
 
-- **Criação de OS guiada** — fluxo passo a passo: cliente → equipamento → serviços/peças → resumo → finalizar
+- **Criação de OS guiada** — fluxo passo a passo com indicador de progresso: cliente → equipamento → serviços/peças → resumo → finalizar
 - **Offline-first real** — cria, edita e consulta OS sem nenhuma conexão; fila de sincronização automática
+- **Localização offline** — captura o local do atendimento via GPS mesmo sem internet (com fallback de última posição conhecida)
 - **Indicador de status** — cada OS exibe "Na nuvem" ou "Só no celular" em tempo real
-- **Sincronização manual** — botão Sincronizar envia tudo que está pendente assim que a rede voltar
-- **PDF profissional** — gera e compartilha a OS em PDF direto do celular
-- **Geolocalização e deslocamento** — calcula KM rodado a partir do local base configurado
-- **Gestão de clientes** — CRUD completo integrado ao backend
+- **Sincronização inteligente** — botão Sincronizar envia tudo que está pendente; fica desativado quando não há nada a enviar
+- **Máscara de moeda** — valores de mão de obra e peças formatados automaticamente (vírgula e centavos)
+- **Notificações visuais** — feedback de sucesso/erro em toasts integrados ao visual do app
+- **PDF profissional em A4** — gera e compartilha a OS em PDF, com logo da empresa personalizável
+- **Geolocalização e deslocamento** — calcula KM rodado a partir do local base; abre o endereço **no app de mapa preferido do aparelho** (Apple Maps, Google Maps ou Waze)
+- **Gestão de clientes** — CRUD completo integrado ao backend, com autocompletar de endereço por CEP (ViaCEP)
 - **Autenticação com token** — login validado no Supabase com RLS por usuário
 
 ---
@@ -46,10 +49,14 @@ Projeto desenvolvido por alunos do curso de Análise e Desenvolvimento de Sistem
 | Camada | Tecnologia |
 |---|---|
 | Mobile | React Native + Expo SDK 54 |
+| Navegação | React Navigation (stack + bottom tabs) |
 | Backend / Auth | Supabase (PostgreSQL + Auth via RPC + RLS) |
 | Cache offline | AsyncStorage com fila de sincronização |
-| Geolocalização | expo-location |
-| Geração de PDF | expo-print |
+| Geolocalização | expo-location (GPS offline) |
+| Mapas | Deep links para Apple Maps / Google Maps / Waze |
+| Geração de PDF | expo-print + expo-sharing |
+| API externa | ViaCEP (autocompletar endereço por CEP) |
+| UI / feedback | react-native-toast-message, expo-image-picker |
 
 ---
 

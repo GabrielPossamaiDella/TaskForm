@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   sublabel: { fontSize: 12, color: CORES.placeholder, marginBottom: 8 },
 
   input: {
-    backgroundColor: '#F8F8F8', borderWidth: 1, borderColor: '#E8E8E8',
+    backgroundColor: '#F4F6FA', borderWidth: 1.5, borderColor: '#D9DEEA',
     borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12,
     fontSize: 15, color: CORES.textoPrincipal,
   },

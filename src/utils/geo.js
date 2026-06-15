@@ -4,12 +4,29 @@
 import * as Location from 'expo-location';
 
 // Captura a localizacao atual. Nunca lanca erro: retorna null se negar/falhar.
+// Funciona OFFLINE: usa GPS de alta precisao (satelite, nao precisa de internet)
+// e, se demorar/falhar, recorre a ultima posicao conhecida em cache.
 export async function capturarLocalizacao() {
   try {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') return null;
-    const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-    return { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+
+    const formatar = (p) =>
+      p && p.coords ? { latitude: p.coords.latitude, longitude: p.coords.longitude } : null;
+
+    // Posicao atual via GPS. Corre contra um timeout para nao travar com sinal fraco.
+    try {
+      const atual = await Promise.race([
+        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
+      ]);
+      const r = formatar(atual);
+      if (r) return r;
+    } catch (_) { /* cai para a ultima posicao conhecida */ }
+
+    // Fallback offline: ultima posicao conhecida em cache (instantaneo).
+    const ultima = await Location.getLastKnownPositionAsync();
+    return formatar(ultima);
   } catch (e) {
     return null;
   }

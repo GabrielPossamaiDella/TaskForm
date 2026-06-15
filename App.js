@@ -19,14 +19,21 @@ import Configuracoes from './src/screens/Configuracoes';
 
 import Toast from 'react-native-toast-message';
 import { CORES } from './src/styles/temas';
+import { toastConfig } from './src/components/toastConfig';
 import { AppProvider } from './src/context/AppContext';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+// Toast posicionado abaixo do notch/Dynamic Island (respeita a área segura).
+function AppToast() {
+  const insets = useSafeAreaInsets();
+  return <Toast config={toastConfig} topOffset={insets.top + 10} />;
+}
+
 function HomeTabs() {
   const insets = useSafeAreaInsets();
-  const tabBarHeight = Platform.OS === 'ios' ? 60 + insets.bottom : 56 + insets.bottom;
+  const tabBarHeight = Platform.OS === 'ios' ? 74 + insets.bottom : 72 + insets.bottom;
   const tabBarPaddingBottom = Platform.OS === 'ios' ? 8 + insets.bottom : 6 + insets.bottom;
 
   return (
@@ -39,9 +46,11 @@ function HomeTabs() {
           borderTopColor: '#E5E7EB',
           height: tabBarHeight,
           paddingBottom: tabBarPaddingBottom,
-          paddingTop: 8,
+          paddingTop: 14,
           overflow: 'visible',
         },
+        tabBarIconStyle: { marginTop: 3 },
+        tabBarLabelStyle: { marginTop: 2 },
         tabBarActiveTintColor: CORES.primaria,
         tabBarInactiveTintColor: '#9CA3AF',
         tabBarIcon: ({ focused, color, size }) => {
@@ -50,7 +59,7 @@ function HomeTabs() {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Nova OS') {
             iconName = focused ? 'add-circle' : 'add-circle-outline';
-            size = 34;
+            size = 32;
             color = focused ? CORES.primaria : '#9CA3AF';
           } else if (route.name === 'Perfil') {
             iconName = focused ? 'person' : 'person-outline';
@@ -131,8 +140,8 @@ export default function App() {
 
         </Stack.Navigator>
       </NavigationContainer>
+      <AppToast />
       </SafeAreaProvider>
-      <Toast />
     </AppProvider>
   );
 }

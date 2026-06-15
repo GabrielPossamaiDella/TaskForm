@@ -13,14 +13,31 @@ const HEADER_BG = '#2563EB';
 const LOGO_KEY = '@logo_pdf';
 const MAX_BYTES = 2 * 1024 * 1024;
 
+// Iniciais a partir do nome: "Maria Silva" -> "MS", "Maria" -> "MA".
+const iniciais = (nome) => {
+  const partes = (nome || '').trim().split(/\s+/).filter(Boolean);
+  if (!partes.length) return '?';
+  if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
+  return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+};
+
 export default function Perfil({ navigation }) {
   const { clientes, listaOS } = useApp();
   const insets = useSafeAreaInsets();
   const [logoPDF, setLogoPDF] = useState(null);
+  const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
     AsyncStorage.getItem(LOGO_KEY).then(val => { if (val) setLogoPDF(val); });
+    AsyncStorage.getItem('@usuario').then(val => {
+      if (val) { try { setUsuario(JSON.parse(val)); } catch (_) {} }
+    });
   }, []);
+
+  const nomeUsuario = usuario?.nome || 'Usuário';
+  const emailUsuario = usuario?.email || '—';
+  const cargoUsuario = usuario?.cargo || 'Técnico';
+  const empresaUsuario = usuario?.empresa || 'Tecflex';
 
   const handleLogout = () => {
     Alert.alert('Encerrar Sessão?', 'Você precisará fazer login novamente para acessar o app.', [
@@ -46,7 +63,7 @@ export default function Perfil({ navigation }) {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true, aspect: [3, 1], quality: 0.85,
     });
     if (result.canceled) return;
@@ -89,10 +106,10 @@ export default function Perfil({ navigation }) {
       {/* Header escuro com avatar */}
       <View style={[styles.headerArea, { paddingTop: insets.top + 20 }]}>
         <View style={styles.avatarBox}>
-          <Text style={styles.avatarTxt}>GP</Text>
+          <Text style={styles.avatarTxt}>{iniciais(nomeUsuario)}</Text>
         </View>
-        <Text style={styles.nomeUsuario}>Gabriel Patricio</Text>
-        <Text style={styles.cargoUsuario}>Administrador · Técnico</Text>
+        <Text style={styles.nomeUsuario}>{nomeUsuario}</Text>
+        <Text style={styles.cargoUsuario}>{cargoUsuario}</Text>
       </View>
 
       {/* Conteúdo */}
@@ -119,12 +136,12 @@ export default function Perfil({ navigation }) {
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>E-mail</Text>
-              <Text style={styles.infoValor}>gabriel@tecflex.com.br</Text>
+              <Text style={styles.infoValor}>{emailUsuario}</Text>
             </View>
             <View style={styles.divisor} />
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Empresa</Text>
-              <Text style={styles.infoValor}>Tecflex Sistemas de Costura</Text>
+              <Text style={styles.infoValor}>{empresaUsuario}</Text>
             </View>
           </View>
 

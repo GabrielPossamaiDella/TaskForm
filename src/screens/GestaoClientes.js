@@ -87,11 +87,11 @@ export default function GestaoClientes({ navigation }) {
         </View>
 
         <View style={styles.searchRow}>
-          <Ionicons name="search-outline" size={16} color="rgba(255,255,255,0.45)" style={{ marginRight: 8 }} />
+          <Ionicons name="search-outline" size={16} color="rgba(255,255,255,0.7)" style={{ marginRight: 8 }} />
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar por nome ou documento..."
-            placeholderTextColor="rgba(255,255,255,0.3)"
+            placeholderTextColor="rgba(255,255,255,0.6)"
             value={busca}
             onChangeText={setBusca}
           />
@@ -157,9 +157,9 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 16, fontWeight: '800', color: '#fff', letterSpacing: 1 },
   searchRow: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(255,255,255,0.14)',
     borderRadius: 12, paddingHorizontal: 14, height: 44,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)',
   },
   searchInput: { flex: 1, fontSize: 14, color: '#fff' },
 
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   },
   avatarLetra: { fontSize: 18, fontWeight: '800', color: HEADER_BG },
   textos: { flex: 1 },
-  nomeCliente: { fontSize: 15, fontWeight: '700', color: HEADER_BG },
+  nomeCliente: { fontSize: 15, fontWeight: '700', color: CORES.textoPrincipal },
   docCliente: { fontSize: 12, color: CORES.textoSecundario, marginTop: 2 },
   telCliente: { fontSize: 12, color: CORES.placeholder, marginTop: 1 },
   btnAcoes: {

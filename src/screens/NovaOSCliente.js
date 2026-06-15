@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { CORES } from '../styles/temas';
+import StepProgress from '../components/StepProgress';
 import ClienteModal from '../components/ClienteModal';
 
 const HEADER_BG = '#2563EB';
@@ -65,35 +66,24 @@ export default function NovaOSCliente({ navigation }) {
     <View style={styles.safe}>
 
       {/* Header com progresso e busca */}
-      <View style={[styles.headerArea, { paddingTop: insets.top + 10 }]}>
-        <View style={styles.progressoRow}>
-          <View style={styles.passoAtivo}>
-            <Text style={styles.passoAtivoTxt}>1. Cliente</Text>
+      <View style={[styles.headerArea, { paddingTop: insets.top }]}>
+        <StepProgress current={1} />
+        <View style={styles.searchWrap}>
+          <View style={styles.searchBar}>
+            <Ionicons name="search-outline" size={16} color="rgba(255,255,255,0.7)" style={{ marginRight: 8 }} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Buscar cliente..."
+              placeholderTextColor="rgba(255,255,255,0.6)"
+              value={busca}
+              onChangeText={setBusca}
+            />
+            {busca.length > 0 && (
+              <TouchableOpacity onPress={() => setBusca('')} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
+                <Ionicons name="close-circle" size={16} color="rgba(255,255,255,0.45)" />
+              </TouchableOpacity>
+            )}
           </View>
-          <View style={styles.passoDivisor} />
-          <View style={styles.passoInativo}>
-            <Text style={styles.passoInativoTxt}>2. Equipamento</Text>
-          </View>
-          <View style={styles.passoDivisor} />
-          <View style={styles.passoInativo}>
-            <Text style={styles.passoInativoTxt}>3. Serviço</Text>
-          </View>
-        </View>
-
-        <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={16} color="rgba(255,255,255,0.45)" style={{ marginRight: 8 }} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Buscar cliente..."
-            placeholderTextColor="rgba(255,255,255,0.3)"
-            value={busca}
-            onChangeText={setBusca}
-          />
-          {busca.length > 0 && (
-            <TouchableOpacity onPress={() => setBusca('')} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
-              <Ionicons name="close-circle" size={16} color="rgba(255,255,255,0.45)" />
-            </TouchableOpacity>
-          )}
         </View>
       </View>
 
@@ -150,22 +140,13 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F0F2F8' },
 
   // HEADER
-  headerArea: { backgroundColor: HEADER_BG, paddingHorizontal: 20, paddingBottom: 18 },
-  progressoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  passoAtivo: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20,
-  },
-  passoAtivoTxt: { color: '#fff', fontWeight: '700', fontSize: 12 },
-  passoDivisor: { flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.2)', marginHorizontal: 6 },
-  passoInativo: { paddingHorizontal: 4, paddingVertical: 6 },
-  passoInativoTxt: { color: 'rgba(255,255,255,0.4)', fontSize: 11 },
-
+  headerArea: { backgroundColor: HEADER_BG, paddingBottom: 18 },
+  searchWrap: { paddingHorizontal: 20, marginTop: 4 },
   searchBar: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(255,255,255,0.14)',
     borderRadius: 12, paddingHorizontal: 14, height: 44,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)',
   },
   searchInput: { flex: 1, fontSize: 14, color: '#fff' },
 
@@ -205,7 +186,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center', marginRight: 12,
   },
   avatarLetra: { fontSize: 17, fontWeight: '800', color: HEADER_BG },
-  nomeCliente: { fontSize: 15, fontWeight: '700', color: HEADER_BG },
+  nomeCliente: { fontSize: 15, fontWeight: '700', color: CORES.textoPrincipal },
   docCliente: { fontSize: 12, color: CORES.textoSecundario, marginTop: 2 },
   checkBadge: {
     width: 24, height: 24, borderRadius: 12, backgroundColor: CORES.secundaria,

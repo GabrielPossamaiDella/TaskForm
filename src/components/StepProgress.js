@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const LABELS = ['Cliente', 'Equip.', 'Serviço'];
+const LABELS = ['Cliente', 'Equip.', 'Serviço', 'Resumo'];
 
 export default function StepProgress({ current }) {
   return (
