@@ -87,8 +87,8 @@ O backend é em nuvem. Não é necessário configurar nada — o app já conecta
 
 | Campo | Valor |
 |---|---|
-| E-mail | `gabriel@tecflex.com.br` |
-| Senha | `admin123` |
+| E-mail | `demo@taskform.app` |
+| Senha | `demo1234` |
 
 ---
 
