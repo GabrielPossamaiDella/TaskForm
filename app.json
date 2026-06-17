@@ -45,7 +45,8 @@
         {
           "locationWhenInUsePermission": "O TaskForm usa sua localização para registrar onde o atendimento foi realizado."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "extra": {
       "eas": {
